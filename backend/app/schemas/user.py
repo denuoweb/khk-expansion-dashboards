@@ -1,6 +1,9 @@
+"""Pydantic models representing user data."""
+
 from datetime import datetime
 from typing import List, Optional
 from pydantic import BaseModel, EmailStr, Field
+
 
 class ConfigBase:
     from_attributes = True
@@ -17,8 +20,10 @@ class UserBase(BaseModel):
     class Config(ConfigBase):
         pass
 
+
 class UserCreate(UserBase):
     password: str
+
 
 class UserInDB(UserBase):
     id: int
@@ -27,6 +32,7 @@ class UserInDB(UserBase):
 
     class Config(ConfigBase):
         pass
+
 
 class UserResponse(UserBase):
     id: int

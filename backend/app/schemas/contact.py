@@ -1,10 +1,14 @@
+"""Pydantic models for university contacts."""
+
 from datetime import date
 from typing import Optional
 from pydantic import BaseModel, Field
 
+
 class ConfigBase:
     from_attributes = True
     populate_by_name = True
+
 
 class UniversityContactBase(BaseModel):
     university: str
@@ -23,8 +27,10 @@ class UniversityContactBase(BaseModel):
     class Config(ConfigBase):
         pass
 
+
 class UniversityContactCreate(UniversityContactBase):
     pass
+
 
 class UniversityContactUpdate(BaseModel):
     university: Optional[str] = None
@@ -43,11 +49,13 @@ class UniversityContactUpdate(BaseModel):
     class Config(ConfigBase):
         pass
 
+
 class UniversityContactInDB(UniversityContactBase):
     id: int
 
     class Config(ConfigBase):
         pass
+
 
 class UniversityContactResponse(UniversityContactInDB):
     pass

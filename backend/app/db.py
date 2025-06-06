@@ -1,3 +1,11 @@
+"""Database configuration for the FastAPI backend.
+
+This module exposes the SQLAlchemy asynchronous engine, session maker,
+and declarative base used by the application. The ``AsyncSessionLocal``
+context manager yields database sessions and ``Base`` is used for model
+declarations in ``backend/app/models``.
+"""
+
 import os
 from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine, async_sessionmaker
 from sqlalchemy.orm import declarative_base

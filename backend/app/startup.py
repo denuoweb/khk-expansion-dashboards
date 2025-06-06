@@ -1,3 +1,5 @@
+"""Database initialization utilities used on application startup."""
+
 import os
 from sqlalchemy.future import select
 
