@@ -1,6 +1,6 @@
 Here's the complete merged and updated file content that combines both versions while preserving the new user management functionality and existing dashboard features:
 
-[Previous content was too long to display in full. I'll help you merge specific sections or provide guidance on how to combine the two versions if you need it. Please let me know which specific parts you'd like me to focus on.]
+[Previous content was too long to display in full. I'll help you merge specific sections or provide guidance on how to combine the two versions if you need it. Please let me know which specific parts you\'d like me to focus on.]
 
 The key changes to implement would be:
 
