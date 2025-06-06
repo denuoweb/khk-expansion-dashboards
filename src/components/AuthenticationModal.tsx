@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { X, Lock, User, Eye, EyeOff } from 'lucide-react';
 import { Role } from '../App';
+import { useAppContext } from '../contexts/AppContext';
 
 interface AuthenticationModalProps {
   selectedRole: Role;
@@ -14,16 +15,17 @@ const AuthenticationModal: React.FC<AuthenticationModalProps> = ({ selectedRole,
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  // Demo passwords for each role (in production, this would be handled by a secure backend)
-  const rolePasswords: { [key: string]: string } = {
-    'chair': 'chair2024',
-    'vice-chair': 'vicechair2024',
-    'secretary': 'secretary2024',
-    'marketing': 'marketing2024',
-    'recruitment': 'recruitment2024',
-    'chapter-dev': 'chapterdev2024',
-    'compliance': 'compliance2024',
-    'data-analytics': 'analytics2024'
+  const { login } = useAppContext();
+
+  const roleEmails: { [key: string]: string } = {
+    'chair': 'chair@khk.org',
+    'vice-chair': 'vice-chair@khk.org',
+    'secretary': 'secretary@khk.org',
+    'marketing': 'marketing@khk.org',
+    'recruitment': 'recruitment@khk.org',
+    'chapter-dev': 'chapter-dev@khk.org',
+    'compliance': 'compliance@khk.org',
+    'data-analytics': 'analytics@khk.org'
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -31,16 +33,13 @@ const AuthenticationModal: React.FC<AuthenticationModalProps> = ({ selectedRole,
     setIsLoading(true);
     setError('');
 
-    // Simulate authentication delay
-    await new Promise(resolve => setTimeout(resolve, 1000));
-
-    if (password === rolePasswords[selectedRole.id]) {
+    const email = roleEmails[selectedRole.id] ?? `${selectedRole.id}@khk.org`;
+    const success = await login(email, password);
+    if (success) {
       onAuthenticate(true);
     } else {
-      setError('Invalid password. Please try again.');
-      setPassword('');
+      setError('Invalid credentials');
     }
-    
     setIsLoading(false);
   };
 
@@ -132,10 +131,6 @@ const AuthenticationModal: React.FC<AuthenticationModalProps> = ({ selectedRole,
             )}
           </button>
 
-          <div className="mt-4 p-3 bg-gray-50 rounded-lg">
-            <p className="text-xs font-medium text-gray-600 mb-2">Demo Credentials:</p>
-            <p className="text-xs text-gray-500">Password: {rolePasswords[selectedRole.id]}</p>
-          </div>
         </form>
       </div>
     </div>

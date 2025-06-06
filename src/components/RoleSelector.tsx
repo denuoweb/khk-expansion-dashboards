@@ -122,25 +122,6 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({ roles, onRoleSelect }) => {
           </div>
         </div>
 
-        {/* Demo Information - Mobile Optimized */}
-        <div className="max-w-2xl mx-auto mt-6 sm:mt-8 px-4">
-          <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4 sm:p-6">
-            <h3 className="font-semibold text-yellow-900 mb-2 sm:mb-3 text-sm sm:text-base">Demo Access Information</h3>
-            <p className="text-xs sm:text-sm text-yellow-800 mb-2 sm:mb-3">
-              This is a demonstration platform. Each role has a demo password for testing purposes:
-            </p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-1 sm:gap-2 text-xs text-yellow-700">
-              <div>• Chair: chair2024</div>
-              <div>• Vice-Chair: vicechair2024</div>
-              <div>• Secretary: secretary2024</div>
-              <div>• Marketing: marketing2024</div>
-              <div>• Recruitment: recruitment2024</div>
-              <div>• Chapter Dev: chapterdev2024</div>
-              <div>• Compliance: compliance2024</div>
-              <div>• Data Analytics: analytics2024</div>
-            </div>
-          </div>
-        </div>
       </div>
 
       {/* Authentication Modal */}

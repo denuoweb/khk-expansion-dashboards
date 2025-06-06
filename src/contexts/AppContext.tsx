@@ -2,12 +2,16 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 import { User, UserSession } from '../types/User';
 import { Notification } from '../types/Notification';
 import { Task } from '../types/Task';
+import { authService } from '../services/authService';
+import { taskService } from '../services/taskService';
 
 interface AppContextType {
   // User & Authentication
   currentUser: User | null;
   userSession: UserSession | null;
   setUserSession: (session: UserSession | null) => void;
+  login: (email: string, password: string) => Promise<boolean>;
+  logout: () => void;
   
   // Notifications
   notifications: Notification[];
@@ -49,7 +53,10 @@ interface AppProviderProps {
 
 export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
-  const [userSession, setUserSession] = useState<UserSession | null>(null);
+  const [userSession, setUserSession] = useState<UserSession | null>(() => {
+    const stored = localStorage.getItem('khk-session');
+    return stored ? JSON.parse(stored) : null;
+  });
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [globalTasks, setGlobalTasks] = useState<Task[]>([]);
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
@@ -60,8 +67,12 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   useEffect(() => {
     if (userSession) {
       setCurrentUser(userSession.user);
+      taskService.setAuthToken(userSession.token);
+      localStorage.setItem('khk-session', JSON.stringify(userSession));
     } else {
       setCurrentUser(null);
+      taskService.setAuthToken(null);
+      localStorage.removeItem('khk-session');
     }
   }, [userSession]);
 
@@ -116,6 +127,21 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
 
   const unreadCount = notifications.filter(n => !n.read).length;
 
+  const login = async (email: string, password: string) => {
+    try {
+      const session = await authService.login(email, password);
+      setUserSession(session);
+      return true;
+    } catch (error) {
+      console.error('Login failed', error);
+      return false;
+    }
+  };
+
+  const logout = () => {
+    setUserSession(null);
+  };
+
   const updateSharedData = (key: string, value: unknown) => {
     setSharedData(prev => ({ ...prev, [key]: value }));
   };
@@ -136,6 +162,8 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     currentUser,
     userSession,
     setUserSession,
+    login,
+    logout,
     notifications,
     addNotification,
     markNotificationRead,
