@@ -26,7 +26,11 @@ frontend.  During development you normally run them separately.
    ```bash
    python -m app.create_db
    ```
-4. **Run the API** in autoreload mode on port 8000:
+4. **Set the chair password**
+   ```bash
+   CHAIR_PASSWORD=my-secret python -m app.set_chair_password
+   ```
+5. **Run the API** in autoreload mode on port 8000:
    ```bash
    uvicorn app.main:app --reload --port 8000
    ```
