@@ -48,33 +48,33 @@ const AuthenticationModal: React.FC<AuthenticationModalProps> = ({ selectedRole,
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl shadow-xl max-w-md w-full">
-        <div className="flex items-center justify-between p-6 border-b border-gray-200">
+      <div className="bg-white rounded-xl shadow-xl max-w-md w-full mx-4">
+        <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-200">
           <div className="flex items-center space-x-3">
             <div className={`${selectedRole.color} rounded-lg p-2`}>
-              <IconComponent className="h-6 w-6 text-white" />
+              <IconComponent className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
             </div>
             <div>
-              <h2 className="text-xl font-semibold text-gray-900">Sign In</h2>
+              <h2 className="text-lg sm:text-xl font-semibold text-gray-900">Sign In</h2>
               <p className="text-sm text-gray-600">{selectedRole.name}</p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100"
+            className="p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100 touch-manipulation"
           >
             <X className="h-5 w-5" />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6">
+        <form onSubmit={handleSubmit} className="p-4 sm:p-6">
           <div className="mb-6">
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 sm:p-4 mb-4">
               <div className="flex items-start space-x-3">
-                <User className="h-5 w-5 text-blue-600 mt-0.5" />
+                <User className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600 mt-0.5 flex-shrink-0" />
                 <div>
-                  <h3 className="font-medium text-blue-900">Role Access</h3>
-                  <p className="text-sm text-blue-700 mt-1">{selectedRole.description}</p>
+                  <h3 className="font-medium text-blue-900 text-sm sm:text-base">Role Access</h3>
+                  <p className="text-xs sm:text-sm text-blue-700 mt-1">{selectedRole.description}</p>
                 </div>
               </div>
             </div>
@@ -84,13 +84,13 @@ const AuthenticationModal: React.FC<AuthenticationModalProps> = ({ selectedRole,
             </label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Lock className="h-5 w-5 text-gray-400" />
+                <Lock className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400" />
               </div>
               <input
                 type={showPassword ? 'text' : 'password'}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full pl-9 sm:pl-10 pr-10 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm sm:text-base"
                 placeholder="Enter your password"
                 required
                 disabled={isLoading}
@@ -98,12 +98,12 @@ const AuthenticationModal: React.FC<AuthenticationModalProps> = ({ selectedRole,
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                className="absolute inset-y-0 right-0 pr-3 flex items-center touch-manipulation"
               >
                 {showPassword ? (
-                  <EyeOff className="h-5 w-5 text-gray-400 hover:text-gray-600" />
+                  <EyeOff className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400 hover:text-gray-600" />
                 ) : (
-                  <Eye className="h-5 w-5 text-gray-400 hover:text-gray-600" />
+                  <Eye className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400 hover:text-gray-600" />
                 )}
               </button>
             </div>
@@ -116,7 +116,7 @@ const AuthenticationModal: React.FC<AuthenticationModalProps> = ({ selectedRole,
           <button
             type="submit"
             disabled={isLoading || !password}
-            className={`w-full py-3 px-4 rounded-lg font-medium transition-colors ${
+            className={`w-full py-2 sm:py-3 px-4 rounded-lg font-medium transition-colors text-sm sm:text-base touch-manipulation ${
               isLoading || !password
                 ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
                 : `${selectedRole.color} text-white hover:opacity-90`
@@ -133,7 +133,7 @@ const AuthenticationModal: React.FC<AuthenticationModalProps> = ({ selectedRole,
           </button>
 
           <div className="mt-4 p-3 bg-gray-50 rounded-lg">
-            <p className="text-xs text-gray-600 font-medium mb-2">Demo Credentials:</p>
+            <p className="text-xs font-medium text-gray-600 mb-2">Demo Credentials:</p>
             <p className="text-xs text-gray-500">Password: {rolePasswords[selectedRole.id]}</p>
           </div>
         </form>

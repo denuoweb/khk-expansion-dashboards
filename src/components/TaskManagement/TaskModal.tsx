@@ -88,19 +88,19 @@ const TaskModal: React.FC<TaskModalProps> = ({ task, roles, onSave, onClose }) =
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-        <div className="flex items-center justify-between p-6 border-b border-gray-200">
-          <h2 className="text-xl font-semibold text-gray-900">
+        <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-200">
+          <h2 className="text-lg sm:text-xl font-semibold text-gray-900">
             {task ? 'Edit Task' : 'Create New Task'}
           </h2>
           <button
             onClick={onClose}
-            className="p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100"
+            className="p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100 touch-manipulation"
           >
             <X className="h-5 w-5" />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6 space-y-6">
+        <form onSubmit={handleSubmit} className="p-4 sm:p-6 space-y-4 sm:space-y-6">
           {/* Title */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -110,7 +110,7 @@ const TaskModal: React.FC<TaskModalProps> = ({ task, roles, onSave, onClose }) =
               type="text"
               value={formData.title}
               onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-transparent text-sm sm:text-base"
               placeholder="Enter task title..."
               required
             />
@@ -125,13 +125,13 @@ const TaskModal: React.FC<TaskModalProps> = ({ task, roles, onSave, onClose }) =
               value={formData.description}
               onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
               rows={4}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-transparent text-sm sm:text-base"
               placeholder="Enter task description..."
             />
           </div>
 
           {/* Status and Priority */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 <Flag className="h-4 w-4 inline mr-1" />
@@ -140,7 +140,7 @@ const TaskModal: React.FC<TaskModalProps> = ({ task, roles, onSave, onClose }) =
               <select
                 value={formData.priority}
                 onChange={(e) => setFormData(prev => ({ ...prev, priority: e.target.value as TaskPriority }))}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-transparent text-sm sm:text-base"
               >
                 <option value="low">Low Priority</option>
                 <option value="medium">Medium Priority</option>
@@ -155,7 +155,7 @@ const TaskModal: React.FC<TaskModalProps> = ({ task, roles, onSave, onClose }) =
               <select
                 value={formData.status}
                 onChange={(e) => setFormData(prev => ({ ...prev, status: e.target.value as TaskStatus }))}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-transparent text-sm sm:text-base"
               >
                 <option value="todo">To Do</option>
                 <option value="in-progress">In Progress</option>
@@ -174,7 +174,7 @@ const TaskModal: React.FC<TaskModalProps> = ({ task, roles, onSave, onClose }) =
               type="date"
               value={formData.dueDate}
               onChange={(e) => setFormData(prev => ({ ...prev, dueDate: e.target.value }))}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-transparent text-sm sm:text-base"
             />
           </div>
 
@@ -184,7 +184,7 @@ const TaskModal: React.FC<TaskModalProps> = ({ task, roles, onSave, onClose }) =
               <Users className="h-4 w-4 inline mr-1" />
               Assigned Positions
             </label>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               {roles.map(role => {
                 const IconComponent = role.icon;
                 const isSelected = formData.assignedPositions.includes(role.id);
@@ -194,18 +194,18 @@ const TaskModal: React.FC<TaskModalProps> = ({ task, roles, onSave, onClose }) =
                     key={role.id}
                     type="button"
                     onClick={() => handlePositionToggle(role.id)}
-                    className={`flex items-center space-x-2 p-3 rounded-lg border transition-colors ${
+                    className={`flex items-center space-x-2 p-3 rounded-lg border transition-colors touch-manipulation ${
                       isSelected
                         ? 'border-slate-500 bg-slate-50 text-slate-700'
                         : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
                     }`}
                   >
-                    <div className={`${role.color} rounded p-1`}>
-                      <IconComponent className="h-4 w-4 text-white" />
+                    <div className={`${role.color} rounded p-1 flex-shrink-0`}>
+                      <IconComponent className="h-3 w-3 sm:h-4 sm:w-4 text-white" />
                     </div>
-                    <span className="text-sm font-medium">{role.name}</span>
+                    <span className="text-xs sm:text-sm font-medium truncate">{role.name}</span>
                     {isSelected && (
-                      <div className="ml-auto w-2 h-2 bg-slate-500 rounded-full"></div>
+                      <div className="ml-auto w-2 h-2 bg-slate-500 rounded-full flex-shrink-0"></div>
                     )}
                   </button>
                 );
@@ -223,13 +223,13 @@ const TaskModal: React.FC<TaskModalProps> = ({ task, roles, onSave, onClose }) =
               {formData.tags.map(tag => (
                 <span
                   key={tag}
-                  className="inline-flex items-center space-x-1 bg-gray-100 text-gray-700 px-2 py-1 rounded-full text-sm"
+                  className="inline-flex items-center space-x-1 bg-gray-100 text-gray-700 px-2 py-1 rounded-full text-xs sm:text-sm"
                 >
                   <span>#{tag}</span>
                   <button
                     type="button"
                     onClick={() => handleRemoveTag(tag)}
-                    className="text-gray-500 hover:text-gray-700"
+                    className="text-gray-500 hover:text-gray-700 touch-manipulation"
                   >
                     <X className="h-3 w-3" />
                   </button>
@@ -242,13 +242,13 @@ const TaskModal: React.FC<TaskModalProps> = ({ task, roles, onSave, onClose }) =
                 value={newTag}
                 onChange={(e) => setNewTag(e.target.value)}
                 onKeyPress={handleKeyPress}
-                className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-transparent"
+                className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-transparent text-sm sm:text-base"
                 placeholder="Add a tag..."
               />
               <button
                 type="button"
                 onClick={handleAddTag}
-                className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+                className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm touch-manipulation"
               >
                 Add
               </button>
@@ -256,17 +256,17 @@ const TaskModal: React.FC<TaskModalProps> = ({ task, roles, onSave, onClose }) =
           </div>
 
           {/* Form Actions */}
-          <div className="flex justify-end space-x-3 pt-4 border-t border-gray-200">
+          <div className="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-3 pt-4 border-t border-gray-200">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+              className="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors text-sm touch-manipulation"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-4 py-2 bg-slate-600 text-white rounded-lg hover:bg-slate-700 transition-colors"
+              className="px-4 py-2 bg-slate-600 text-white rounded-lg hover:bg-slate-700 transition-colors text-sm touch-manipulation"
             >
               {task ? 'Update Task' : 'Create Task'}
             </button>

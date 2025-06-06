@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Plus, Filter, Search, Calendar, Users, AlertCircle, CheckCircle, Clock } from 'lucide-react';
+import { Plus, Filter, Search, Calendar, Users, AlertCircle, CheckCircle, Clock, Grid, List } from 'lucide-react';
 import TaskCard from './TaskCard';
 import TaskModal from './TaskModal';
 import { Task, TaskStatus, TaskPriority } from '../../types/Task';
@@ -79,6 +79,8 @@ const TaskBoard: React.FC<TaskBoardProps> = ({ roles, currentRole }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterPriority, setFilterPriority] = useState<TaskPriority | 'all'>('all');
   const [filterPosition, setFilterPosition] = useState<string>('all');
+  const [viewMode, setViewMode] = useState<'kanban' | 'list'>('kanban');
+  const [showFilters, setShowFilters] = useState(false);
 
   const columns: { status: TaskStatus; title: string; icon: React.ComponentType<any>; color: string }[] = [
     { status: 'todo', title: 'To Do', icon: Clock, color: 'text-gray-600' },
@@ -152,147 +154,212 @@ const TaskBoard: React.FC<TaskBoardProps> = ({ roles, currentRole }) => {
   const stats = getTaskStats();
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Header */}
-      <div className="bg-gradient-to-r from-slate-600 to-slate-700 rounded-xl p-6 text-white">
-        <h2 className="text-2xl font-bold mb-2">Task Management</h2>
-        <p className="text-slate-100">Coordinate tasks across all officer positions and track expansion progress.</p>
+      <div className="bg-gradient-to-r from-slate-600 to-slate-700 rounded-xl p-4 sm:p-6 text-white">
+        <h2 className="text-xl sm:text-2xl font-bold mb-2">Task Management</h2>
+        <p className="text-slate-100 text-sm sm:text-base">Coordinate tasks across all officer positions and track expansion progress.</p>
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="bg-white rounded-lg shadow-sm p-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        <div className="bg-white rounded-lg shadow-sm p-3 sm:p-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600">Total Tasks</p>
-              <p className="text-2xl font-bold text-gray-900">{stats.total}</p>
+              <p className="text-xs sm:text-sm font-medium text-gray-600">Total Tasks</p>
+              <p className="text-xl sm:text-2xl font-bold text-gray-900">{stats.total}</p>
             </div>
-            <Users className="h-8 w-8 text-slate-600" />
+            <Users className="h-6 w-6 sm:h-8 sm:w-8 text-slate-600" />
           </div>
         </div>
-        <div className="bg-white rounded-lg shadow-sm p-4">
+        <div className="bg-white rounded-lg shadow-sm p-3 sm:p-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600">In Progress</p>
-              <p className="text-2xl font-bold text-blue-600">{stats.inProgress}</p>
+              <p className="text-xs sm:text-sm font-medium text-gray-600">In Progress</p>
+              <p className="text-xl sm:text-2xl font-bold text-blue-600">{stats.inProgress}</p>
             </div>
-            <AlertCircle className="h-8 w-8 text-blue-600" />
+            <AlertCircle className="h-6 w-6 sm:h-8 sm:w-8 text-blue-600" />
           </div>
         </div>
-        <div className="bg-white rounded-lg shadow-sm p-4">
+        <div className="bg-white rounded-lg shadow-sm p-3 sm:p-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600">Completed</p>
-              <p className="text-2xl font-bold text-green-600">{stats.completed}</p>
+              <p className="text-xs sm:text-sm font-medium text-gray-600">Completed</p>
+              <p className="text-xl sm:text-2xl font-bold text-green-600">{stats.completed}</p>
             </div>
-            <CheckCircle className="h-8 w-8 text-green-600" />
+            <CheckCircle className="h-6 w-6 sm:h-8 sm:w-8 text-green-600" />
           </div>
         </div>
-        <div className="bg-white rounded-lg shadow-sm p-4">
+        <div className="bg-white rounded-lg shadow-sm p-3 sm:p-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600">Overdue</p>
-              <p className="text-2xl font-bold text-red-600">{stats.overdue}</p>
+              <p className="text-xs sm:text-sm font-medium text-gray-600">Overdue</p>
+              <p className="text-xl sm:text-2xl font-bold text-red-600">{stats.overdue}</p>
             </div>
-            <Calendar className="h-8 w-8 text-red-600" />
+            <Calendar className="h-6 w-6 sm:h-8 sm:w-8 text-red-600" />
           </div>
         </div>
       </div>
 
       {/* Controls */}
-      <div className="bg-white rounded-xl shadow-sm p-6">
-        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0">
-          <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-3">
-            <div className="relative">
-              <Search className="h-5 w-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" />
+      <div className="bg-white rounded-xl shadow-sm p-4 sm:p-6">
+        <div className="flex flex-col space-y-4">
+          {/* Top Row - Search and Create */}
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
+            <div className="relative flex-1 max-w-md">
+              <Search className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" />
               <input
                 type="text"
                 placeholder="Search tasks..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-transparent"
+                className="pl-9 sm:pl-10 pr-4 py-2 w-full text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-transparent"
               />
             </div>
             
-            <select
-              value={filterPriority}
-              onChange={(e) => setFilterPriority(e.target.value as TaskPriority | 'all')}
-              className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-transparent"
-            >
-              <option value="all">All Priorities</option>
-              <option value="high">High Priority</option>
-              <option value="medium">Medium Priority</option>
-              <option value="low">Low Priority</option>
-            </select>
+            <div className="flex items-center space-x-2">
+              {/* View Mode Toggle */}
+              <div className="flex bg-gray-100 rounded-lg p-1">
+                <button
+                  onClick={() => setViewMode('kanban')}
+                  className={`p-2 rounded-md transition-colors ${
+                    viewMode === 'kanban' ? 'bg-white shadow-sm' : 'hover:bg-gray-200'
+                  }`}
+                >
+                  <Grid className="h-4 w-4" />
+                </button>
+                <button
+                  onClick={() => setViewMode('list')}
+                  className={`p-2 rounded-md transition-colors ${
+                    viewMode === 'list' ? 'bg-white shadow-sm' : 'hover:bg-gray-200'
+                  }`}
+                >
+                  <List className="h-4 w-4" />
+                </button>
+              </div>
 
-            <select
-              value={filterPosition}
-              onChange={(e) => setFilterPosition(e.target.value)}
-              className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-transparent"
-            >
-              <option value="all">All Positions</option>
-              {roles.map(role => (
-                <option key={role.id} value={role.id}>{role.name}</option>
-              ))}
-            </select>
+              <button
+                onClick={() => setShowFilters(!showFilters)}
+                className="flex items-center px-3 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 touch-manipulation"
+              >
+                <Filter className="h-4 w-4 mr-2" />
+                Filters
+              </button>
+
+              <button
+                onClick={() => {
+                  setEditingTask(null);
+                  setIsModalOpen(true);
+                }}
+                className="flex items-center px-3 sm:px-4 py-2 bg-slate-600 text-white rounded-lg hover:bg-slate-700 transition-colors text-sm touch-manipulation"
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                <span className="hidden sm:inline">Create Task</span>
+                <span className="sm:hidden">Create</span>
+              </button>
+            </div>
           </div>
 
-          <button
-            onClick={() => {
-              setEditingTask(null);
-              setIsModalOpen(true);
-            }}
-            className="flex items-center px-4 py-2 bg-slate-600 text-white rounded-lg hover:bg-slate-700 transition-colors"
-          >
-            <Plus className="h-4 w-4 mr-2" />
-            Create Task
-          </button>
+          {/* Filters Row */}
+          {showFilters && (
+            <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3 pt-3 border-t border-gray-200">
+              <select
+                value={filterPriority}
+                onChange={(e) => setFilterPriority(e.target.value as TaskPriority | 'all')}
+                className="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-transparent"
+              >
+                <option value="all">All Priorities</option>
+                <option value="high">High Priority</option>
+                <option value="medium">Medium Priority</option>
+                <option value="low">Low Priority</option>
+              </select>
+
+              <select
+                value={filterPosition}
+                onChange={(e) => setFilterPosition(e.target.value)}
+                className="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-transparent"
+              >
+                <option value="all">All Positions</option>
+                {roles.map(role => (
+                  <option key={role.id} value={role.id}>{role.name}</option>
+                ))}
+              </select>
+            </div>
+          )}
         </div>
       </div>
 
-      {/* Kanban Board */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {columns.map(column => {
-          const IconComponent = column.icon;
-          const columnTasks = getTasksByStatus(column.status);
-          
-          return (
-            <div key={column.status} className="bg-white rounded-xl shadow-sm">
-              <div className="p-4 border-b border-gray-200">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-2">
-                    <IconComponent className={`h-5 w-5 ${column.color}`} />
-                    <h3 className="font-semibold text-gray-900">{column.title}</h3>
+      {/* Task Display */}
+      {viewMode === 'kanban' ? (
+        /* Kanban Board */
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
+          {columns.map(column => {
+            const IconComponent = column.icon;
+            const columnTasks = getTasksByStatus(column.status);
+            
+            return (
+              <div key={column.status} className="bg-white rounded-xl shadow-sm">
+                <div className="p-3 sm:p-4 border-b border-gray-200">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2">
+                      <IconComponent className={`h-4 w-4 sm:h-5 sm:w-5 ${column.color}`} />
+                      <h3 className="font-semibold text-gray-900 text-sm sm:text-base">{column.title}</h3>
+                    </div>
+                    <span className="bg-gray-100 text-gray-600 text-xs sm:text-sm px-2 py-1 rounded-full">
+                      {columnTasks.length}
+                    </span>
                   </div>
-                  <span className="bg-gray-100 text-gray-600 text-sm px-2 py-1 rounded-full">
-                    {columnTasks.length}
-                  </span>
+                </div>
+                
+                <div className="p-3 sm:p-4 space-y-3 min-h-[300px] sm:min-h-[400px]">
+                  {columnTasks.map(task => (
+                    <TaskCard
+                      key={task.id}
+                      task={task}
+                      roles={roles}
+                      onStatusChange={handleStatusChange}
+                      onEdit={handleEditTask}
+                      onDelete={handleDeleteTask}
+                    />
+                  ))}
+                  
+                  {columnTasks.length === 0 && (
+                    <div className="text-center py-6 sm:py-8 text-gray-500">
+                      <Clock className="h-6 w-6 sm:h-8 sm:w-8 mx-auto mb-2 opacity-50" />
+                      <p className="text-sm">No tasks in this column</p>
+                    </div>
+                  )}
                 </div>
               </div>
+            );
+          })}
+        </div>
+      ) : (
+        /* List View */
+        <div className="bg-white rounded-xl shadow-sm">
+          <div className="p-4 sm:p-6">
+            <div className="space-y-3">
+              {filteredTasks.map(task => (
+                <TaskCard
+                  key={task.id}
+                  task={task}
+                  roles={roles}
+                  onStatusChange={handleStatusChange}
+                  onEdit={handleEditTask}
+                  onDelete={handleDeleteTask}
+                />
+              ))}
               
-              <div className="p-4 space-y-3 min-h-[400px]">
-                {columnTasks.map(task => (
-                  <TaskCard
-                    key={task.id}
-                    task={task}
-                    roles={roles}
-                    onStatusChange={handleStatusChange}
-                    onEdit={handleEditTask}
-                    onDelete={handleDeleteTask}
-                  />
-                ))}
-                
-                {columnTasks.length === 0 && (
-                  <div className="text-center py-8 text-gray-500">
-                    <Clock className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                    <p>No tasks in this column</p>
-                  </div>
-                )}
-              </div>
+              {filteredTasks.length === 0 && (
+                <div className="text-center py-8 text-gray-500">
+                  <Clock className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                  <p>No tasks match your current filters</p>
+                </div>
+              )}
             </div>
-          );
-        })}
-      </div>
+          </div>
+        </div>
+      )}
 
       {/* Task Modal */}
       {isModalOpen && (
