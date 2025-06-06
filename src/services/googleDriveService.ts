@@ -8,7 +8,7 @@ interface GoogleDriveFile {
   webContentLink: string;
   parents: string[];
   shared: boolean;
-  permissions: any[];
+  permissions: unknown[];
 }
 
 interface GoogleDriveFolder {
@@ -35,7 +35,8 @@ class GoogleDriveService {
     }
   }
 
-  async createFolder(name: string, parentId?: string): Promise<GoogleDriveFolder> {
+  async createFolder(name: string, _parentId?: string): Promise<GoogleDriveFolder> {
+    void _parentId;
     // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 500));
     
@@ -65,7 +66,8 @@ class GoogleDriveService {
     };
   }
 
-  async getFiles(folderId?: string): Promise<GoogleDriveFile[]> {
+  async getFiles(_folderId?: string): Promise<GoogleDriveFile[]> {
+    void _folderId;
     // Simulate getting files
     await new Promise(resolve => setTimeout(resolve, 300));
     
@@ -109,13 +111,17 @@ class GoogleDriveService {
     ];
   }
 
-  async shareFile(fileId: string, email: string, role: 'reader' | 'writer' | 'commenter' = 'reader'): Promise<boolean> {
+  async shareFile(_fileId: string, _email: string, _role: 'reader' | 'writer' | 'commenter' = 'reader'): Promise<boolean> {
+    void _fileId;
+    void _email;
+    void _role;
     // Simulate sharing
     await new Promise(resolve => setTimeout(resolve, 500));
     return true;
   }
 
-  async deleteFile(fileId: string): Promise<boolean> {
+  async deleteFile(_fileId: string): Promise<boolean> {
+    void _fileId;
     // Simulate deletion
     await new Promise(resolve => setTimeout(resolve, 300));
     return true;

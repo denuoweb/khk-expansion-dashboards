@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Upload, Download, Share2, Trash2, Eye, FolderPlus, Search, ExternalLink, FileText, Image, Video, Archive } from 'lucide-react';
+import { Upload, Download, Share2, Trash2, Eye, Search, ExternalLink, FileText, Image, Video, Archive } from 'lucide-react';
 import { googleDriveService, GoogleDriveFile } from '../../services/googleDriveService';
 import { useAppContext } from '../../contexts/AppContext';
 
@@ -22,7 +22,6 @@ const GoogleDriveIntegration: React.FC<GoogleDriveIntegrationProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [isUploading, setIsUploading] = useState(false);
-  const [selectedFiles, setSelectedFiles] = useState<string[]>([]);
   const { addNotification } = useAppContext();
 
   useEffect(() => {
@@ -104,7 +103,8 @@ const GoogleDriveIntegration: React.FC<GoogleDriveIntegrationProps> = ({
         priority: 'low',
         category: 'system'
       });
-    } catch (error) {
+    } catch (_error) {
+      void _error;
       addNotification({
         title: 'Sharing Failed',
         message: 'Failed to share the file',
@@ -128,7 +128,8 @@ const GoogleDriveIntegration: React.FC<GoogleDriveIntegrationProps> = ({
         category: 'system'
       });
       await loadFiles();
-    } catch (error) {
+    } catch (_error) {
+      void _error;
       addNotification({
         title: 'Delete Failed',
         message: 'Failed to delete the file',

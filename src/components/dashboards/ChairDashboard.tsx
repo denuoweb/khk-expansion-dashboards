@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Users, Target, TrendingUp, AlertCircle, CheckCircle, Calendar, Plus, Filter, Download, Bell, ArrowUp, ArrowDown, Eye, Edit, Trash2, MoreVertical, X, FileText, Clock, Send, UserPlus, Settings } from 'lucide-react';
+import React, { useState } from 'react';
+import { Users, Target, TrendingUp, AlertCircle, CheckCircle, Calendar, Plus, Filter, Download, Bell, ArrowUp, ArrowDown, Eye, Edit, MoreVertical, X, FileText } from 'lucide-react';
 
 // Modal Components
 const NECReportModal: React.FC<{ isOpen: boolean; onClose: () => void; onGenerate: (data: any) => void }> = ({ isOpen, onClose, onGenerate }) => {

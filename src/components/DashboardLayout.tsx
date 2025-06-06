@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { LogOut, User, CheckSquare, Settings, Moon, Sun, Menu, X } from 'lucide-react';
+import { LogOut, User, CheckSquare, Moon, Sun, Menu, X } from 'lucide-react';
 import { Role } from '../App';
 import { useAppContext } from '../contexts/AppContext';
 import NotificationCenter from './shared/NotificationCenter';

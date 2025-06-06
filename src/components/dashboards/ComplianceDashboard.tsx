@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Shield, AlertTriangle, CheckCircle, FileText, Calendar, Users, Plus, Edit, X, Save, Eye, Download, Upload, TrendingUp, Clock } from 'lucide-react';
+import { Shield, AlertTriangle, CheckCircle, FileText, Calendar, Plus, X, TrendingUp } from 'lucide-react';
 
 const ComplianceDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState('risk-assessment');

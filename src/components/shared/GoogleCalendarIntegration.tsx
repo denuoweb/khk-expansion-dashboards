@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Calendar, Clock, Users, MapPin, Video, Plus, Edit, Trash2, ExternalLink } from 'lucide-react';
+import { Calendar, Clock, Users, MapPin, Video, Plus, ExternalLink } from 'lucide-react';
 import { googleCalendarService, CalendarEvent } from '../../services/googleCalendarService';
 import { useAppContext } from '../../contexts/AppContext';
 
@@ -65,7 +65,8 @@ const GoogleCalendarIntegration: React.FC<GoogleCalendarIntegrationProps> = ({
       });
       await loadEvents();
       setShowCreateModal(false);
-    } catch (error) {
+    } catch (_error) {
+      void _error;
       addNotification({
         title: 'Failed to Create Event',
         message: 'Could not create the calendar event',

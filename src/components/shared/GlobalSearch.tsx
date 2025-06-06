@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, X, FileText, Users, AlertTriangle, Target, Calendar } from 'lucide-react';
+import { Search, FileText, Users, AlertTriangle, Target, Calendar } from 'lucide-react';
 import { useAppContext } from '../../contexts/AppContext';
 
 interface SearchResult {
@@ -9,7 +9,7 @@ interface SearchResult {
   type: 'task' | 'contact' | 'risk' | 'kpi' | 'document' | 'meeting';
   category: string;
   url?: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 const GlobalSearch: React.FC = () => {
@@ -17,7 +17,7 @@ const GlobalSearch: React.FC = () => {
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<SearchResult[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const { globalTasks, sharedData } = useAppContext();
+  const { globalTasks } = useAppContext();
 
   // Mock search data - in a real app, this would come from APIs
   const searchableData: SearchResult[] = [

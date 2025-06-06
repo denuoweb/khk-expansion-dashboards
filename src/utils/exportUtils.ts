@@ -1,4 +1,4 @@
-export const exportToCSV = (data: any[], filename: string): void => {
+export const exportToCSV = (data: Record<string, unknown>[], filename: string): void => {
   if (data.length === 0) return;
 
   const headers = Object.keys(data[0]);
@@ -30,7 +30,7 @@ export const exportToCSV = (data: any[], filename: string): void => {
   }
 };
 
-export const exportToJSON = (data: any, filename: string): void => {
+export const exportToJSON = (data: unknown, filename: string): void => {
   const jsonContent = JSON.stringify(data, null, 2);
   const blob = new Blob([jsonContent], { type: 'application/json;charset=utf-8;' });
   const link = document.createElement('a');
@@ -46,7 +46,7 @@ export const exportToJSON = (data: any, filename: string): void => {
   }
 };
 
-export const generateReport = (data: any, title: string): string => {
+export const generateReport = (data: unknown, title: string): string => {
   const timestamp = new Date().toISOString();
   
   return `

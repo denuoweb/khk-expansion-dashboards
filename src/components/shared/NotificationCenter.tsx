@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Bell, X, Check, AlertCircle, Info, CheckCircle, AlertTriangle } from 'lucide-react';
+import { Bell, X, AlertCircle, Info, CheckCircle, AlertTriangle } from 'lucide-react';
 import { useAppContext } from '../../contexts/AppContext';
 import { Notification } from '../../types/Notification';
 
