@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Users, Target, FileText, Megaphone, UserPlus, Shield, BarChart3, Settings, Eye } from 'lucide-react';
+import { Users, Target, FileText, Megaphone, UserPlus, Shield, BarChart3, Settings } from 'lucide-react';
 import RoleSelector from './components/RoleSelector';
 import DashboardLayout from './components/DashboardLayout';
 import TaskBoard from './components/TaskManagement/TaskBoard';
@@ -18,15 +18,6 @@ export interface Role {
   icon: React.ComponentType<any>;
   color: string;
   description: string;
-  permissions?: 'full' | 'view-only';
-}
-
-export interface UserAssignment {
-  roleId: string;
-  name: string;
-  email: string;
-  assignedDate: string;
-  status: 'active' | 'pending' | 'inactive';
 }
 
 const roles: Role[] = [
@@ -35,72 +26,56 @@ const roles: Role[] = [
     name: 'Chair',
     icon: Users,
     color: 'bg-blue-600',
-    description: 'Overview of all positions and progress tracking',
-    permissions: 'full'
+    description: 'Overview of all positions and progress tracking'
   },
   {
     id: 'vice-chair',
     name: 'Vice-Chair',
     icon: Target,
     color: 'bg-indigo-600',
-    description: 'KPI tracking and trajectory maintenance',
-    permissions: 'full'
+    description: 'KPI tracking and trajectory maintenance'
   },
   {
     id: 'secretary',
     name: 'Secretary',
     icon: FileText,
     color: 'bg-purple-600',
-    description: 'Minutes and data archives management',
-    permissions: 'full'
+    description: 'Minutes and data archives management'
   },
   {
     id: 'marketing',
     name: 'Marketing Specialist',
     icon: Megaphone,
     color: 'bg-pink-600',
-    description: 'Branding guidelines and template creation',
-    permissions: 'full'
+    description: 'Branding guidelines and template creation'
   },
   {
     id: 'recruitment',
     name: 'Recruitment & Outreach',
     icon: UserPlus,
     color: 'bg-green-600',
-    description: 'University contacts and outreach coordination',
-    permissions: 'full'
+    description: 'University contacts and outreach coordination'
   },
   {
     id: 'chapter-dev',
     name: 'Chapter Development',
     icon: Shield,
     color: 'bg-yellow-600',
-    description: 'Colony mentorship and integration',
-    permissions: 'full'
+    description: 'Colony mentorship and integration'
   },
   {
     id: 'compliance',
     name: 'Compliance Officer',
     icon: Shield,
     color: 'bg-red-600',
-    description: 'Risk assessment and compliance monitoring',
-    permissions: 'full'
+    description: 'Risk assessment and compliance monitoring'
   },
   {
     id: 'data-analytics',
     name: 'Data Analytics Manager',
     icon: BarChart3,
     color: 'bg-cyan-600',
-    description: 'KPI statistics and university research',
-    permissions: 'full'
-  },
-  {
-    id: 'visitor',
-    name: 'Visitor',
-    icon: Eye,
-    color: 'bg-gray-600',
-    description: 'View-only access to dashboards and reports',
-    permissions: 'view-only'
+    description: 'KPI statistics and university research'
   }
 ];
 
@@ -109,52 +84,27 @@ type ViewMode = 'dashboard' | 'tasks';
 function App() {
   const [selectedRole, setSelectedRole] = useState<Role | null>(null);
   const [viewMode, setViewMode] = useState<ViewMode>('dashboard');
-  const [userAssignments, setUserAssignments] = useState<UserAssignment[]>([
-    {
-      roleId: 'chair',
-      name: 'John Smith',
-      email: 'j.smith@khk.org',
-      assignedDate: '2024-01-01',
-      status: 'active'
-    },
-    {
-      roleId: 'vice-chair',
-      name: 'Sarah Johnson',
-      email: 's.johnson@khk.org',
-      assignedDate: '2024-01-01',
-      status: 'active'
-    }
-  ]);
 
   const renderDashboard = () => {
     if (!selectedRole) return null;
 
-    const dashboardProps = {
-      userAssignments,
-      setUserAssignments,
-      roles,
-      isViewOnly: selectedRole.permissions === 'view-only'
-    };
-
     switch (selectedRole.id) {
       case 'chair':
-        return <ChairDashboard {...dashboardProps} />;
+        return <ChairDashboard />;
       case 'vice-chair':
-        return <ViceChairDashboard {...dashboardProps} />;
+        return <ViceChairDashboard />;
       case 'secretary':
-        return <SecretaryDashboard {...dashboardProps} />;
+        return <SecretaryDashboard />;
       case 'marketing':
-        return <MarketingDashboard {...dashboardProps} />;
+        return <MarketingDashboard />;
       case 'recruitment':
-        return <RecruitmentDashboard {...dashboardProps} />;
+        return <RecruitmentDashboard />;
       case 'chapter-dev':
-        return <ChapterDevDashboard {...dashboardProps} />;
+        return <ChapterDevDashboard />;
       case 'compliance':
-        return <ComplianceDashboard {...dashboardProps} />;
+        return <ComplianceDashboard />;
       case 'data-analytics':
-        return <DataAnalyticsDashboard {...dashboardProps} />;
-      case 'visitor':
-        return <ChairDashboard {...dashboardProps} />; // Visitors see Chair dashboard in read-only mode
+        return <DataAnalyticsDashboard />;
       default:
         return null;
     }
@@ -162,7 +112,7 @@ function App() {
 
   const renderContent = () => {
     if (viewMode === 'tasks') {
-      return <TaskBoard roles={roles} currentRole={selectedRole!} isViewOnly={selectedRole?.permissions === 'view-only'} />;
+      return <TaskBoard roles={roles} currentRole={selectedRole!} />;
     }
     return renderDashboard();
   };
@@ -179,7 +129,6 @@ function App() {
         setViewMode('dashboard');
       }}
       onTasksClick={() => setViewMode(viewMode === 'tasks' ? 'dashboard' : 'tasks')}
-      isViewOnly={selectedRole.permissions === 'view-only'}
     >
       {renderContent()}
     </DashboardLayout>

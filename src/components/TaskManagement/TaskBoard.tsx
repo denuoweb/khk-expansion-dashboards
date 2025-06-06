@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Plus, Filter, Search, Calendar, Users, AlertCircle, CheckCircle, Clock, Eye } from 'lucide-react';
+import { Plus, Filter, Search, Calendar, Users, AlertCircle, CheckCircle, Clock } from 'lucide-react';
 import TaskCard from './TaskCard';
 import TaskModal from './TaskModal';
 import { Task, TaskStatus, TaskPriority } from '../../types/Task';
@@ -8,10 +8,9 @@ import { Role } from '../../App';
 interface TaskBoardProps {
   roles: Role[];
   currentRole: Role;
-  isViewOnly?: boolean;
 }
 
-const TaskBoard: React.FC<TaskBoardProps> = ({ roles, currentRole, isViewOnly = false }) => {
+const TaskBoard: React.FC<TaskBoardProps> = ({ roles, currentRole }) => {
   const [tasks, setTasks] = useState<Task[]>([
     {
       id: '1',
@@ -101,8 +100,6 @@ const TaskBoard: React.FC<TaskBoardProps> = ({ roles, currentRole, isViewOnly = 
   };
 
   const handleCreateTask = (taskData: Omit<Task, 'id' | 'createdAt' | 'createdBy'>) => {
-    if (isViewOnly) return;
-    
     const newTask: Task = {
       ...taskData,
       id: Date.now().toString(),
@@ -114,7 +111,7 @@ const TaskBoard: React.FC<TaskBoardProps> = ({ roles, currentRole, isViewOnly = 
   };
 
   const handleUpdateTask = (taskData: Omit<Task, 'id' | 'createdAt' | 'createdBy'>) => {
-    if (isViewOnly || !editingTask) return;
+    if (!editingTask) return;
     
     const updatedTask: Task = {
       ...editingTask,
@@ -127,23 +124,17 @@ const TaskBoard: React.FC<TaskBoardProps> = ({ roles, currentRole, isViewOnly = 
   };
 
   const handleStatusChange = (taskId: string, newStatus: TaskStatus) => {
-    if (isViewOnly) return;
-    
     setTasks(tasks.map(task => 
       task.id === taskId ? { ...task, status: newStatus } : task
     ));
   };
 
   const handleEditTask = (task: Task) => {
-    if (isViewOnly) return;
-    
     setEditingTask(task);
     setIsModalOpen(true);
   };
 
   const handleDeleteTask = (taskId: string) => {
-    if (isViewOnly) return;
-    
     setTasks(tasks.filter(task => task.id !== taskId));
   };
 
@@ -164,18 +155,8 @@ const TaskBoard: React.FC<TaskBoardProps> = ({ roles, currentRole, isViewOnly = 
     <div className="space-y-6">
       {/* Header */}
       <div className="bg-gradient-to-r from-slate-600 to-slate-700 rounded-xl p-6 text-white">
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-2xl font-bold mb-2">Task Management</h2>
-            <p className="text-slate-100">Coordinate tasks across all officer positions and track expansion progress.</p>
-          </div>
-          {isViewOnly && (
-            <div className="flex items-center space-x-2 bg-slate-500 bg-opacity-50 rounded-lg px-3 py-2">
-              <Eye className="h-4 w-4" />
-              <span className="text-sm">View Only</span>
-            </div>
-          )}
-        </div>
+        <h2 className="text-2xl font-bold mb-2">Task Management</h2>
+        <p className="text-slate-100">Coordinate tasks across all officer positions and track expansion progress.</p>
       </div>
 
       {/* Stats */}
@@ -250,24 +231,22 @@ const TaskBoard: React.FC<TaskBoardProps> = ({ roles, currentRole, isViewOnly = 
               className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-transparent"
             >
               <option value="all">All Positions</option>
-              {roles.filter(role => role.id !== 'visitor').map(role => (
+              {roles.map(role => (
                 <option key={role.id} value={role.id}>{role.name}</option>
               ))}
             </select>
           </div>
 
-          {!isViewOnly && (
-            <button
-              onClick={() => {
-                setEditingTask(null);
-                setIsModalOpen(true);
-              }}
-              className="flex items-center px-4 py-2 bg-slate-600 text-white rounded-lg hover:bg-slate-700 transition-colors"
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              Create Task
-            </button>
-          )}
+          <button
+            onClick={() => {
+              setEditingTask(null);
+              setIsModalOpen(true);
+            }}
+            className="flex items-center px-4 py-2 bg-slate-600 text-white rounded-lg hover:bg-slate-700 transition-colors"
+          >
+            <Plus className="h-4 w-4 mr-2" />
+            Create Task
+          </button>
         </div>
       </div>
 
@@ -300,7 +279,6 @@ const TaskBoard: React.FC<TaskBoardProps> = ({ roles, currentRole, isViewOnly = 
                     onStatusChange={handleStatusChange}
                     onEdit={handleEditTask}
                     onDelete={handleDeleteTask}
-                    isViewOnly={isViewOnly}
                   />
                 ))}
                 
@@ -317,7 +295,7 @@ const TaskBoard: React.FC<TaskBoardProps> = ({ roles, currentRole, isViewOnly = 
       </div>
 
       {/* Task Modal */}
-      {isModalOpen && !isViewOnly && (
+      {isModalOpen && (
         <TaskModal
           task={editingTask}
           roles={roles}
