@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ChevronDown, ChevronUp, Calendar, Flag, Users, MoreVertical, Edit, Trash2, ArrowRight } from 'lucide-react';
+import { ChevronDown, ChevronUp, Calendar, Flag, Users, MoreVertical, Edit, Trash2, ArrowRight, Eye } from 'lucide-react';
 import { Task, TaskStatus } from '../../types/Task';
 import { Role } from '../../App';
 
@@ -9,9 +9,10 @@ interface TaskCardProps {
   onStatusChange: (taskId: string, newStatus: TaskStatus) => void;
   onEdit: (task: Task) => void;
   onDelete: (taskId: string) => void;
+  isViewOnly?: boolean;
 }
 
-const TaskCard: React.FC<TaskCardProps> = ({ task, roles, onStatusChange, onEdit, onDelete }) => {
+const TaskCard: React.FC<TaskCardProps> = ({ task, roles, onStatusChange, onEdit, onDelete, isViewOnly = false }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
 
@@ -42,6 +43,8 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, roles, onStatusChange, onEdit
   };
 
   const getNextStatus = (): TaskStatus | null => {
+    if (isViewOnly) return null;
+    
     switch (task.status) {
       case 'todo': return 'in-progress';
       case 'in-progress': return 'done';
@@ -50,6 +53,8 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, roles, onStatusChange, onEdit
   };
 
   const getNextStatusLabel = () => {
+    if (isViewOnly) return null;
+    
     switch (task.status) {
       case 'todo': return 'Start Task';
       case 'in-progress': return 'Mark Complete';
@@ -81,24 +86,38 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, roles, onStatusChange, onEdit
               <div className="absolute right-0 top-6 bg-white border border-gray-200 rounded-lg shadow-lg z-10 min-w-[120px]">
                 <button
                   onClick={() => {
-                    onEdit(task);
+                    setIsExpanded(!isExpanded);
                     setShowMenu(false);
                   }}
                   className="flex items-center w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-50"
                 >
-                  <Edit className="h-3 w-3 mr-2" />
-                  Edit
+                  <Eye className="h-3 w-3 mr-2" />
+                  View Details
                 </button>
-                <button
-                  onClick={() => {
-                    onDelete(task.id);
-                    setShowMenu(false);
-                  }}
-                  className="flex items-center w-full px-3 py-2 text-sm text-red-600 hover:bg-red-50"
-                >
-                  <Trash2 className="h-3 w-3 mr-2" />
-                  Delete
-                </button>
+                {!isViewOnly && (
+                  <>
+                    <button
+                      onClick={() => {
+                        onEdit(task);
+                        setShowMenu(false);
+                      }}
+                      className="flex items-center w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                    >
+                      <Edit className="h-3 w-3 mr-2" />
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => {
+                        onDelete(task.id);
+                        setShowMenu(false);
+                      }}
+                      className="flex items-center w-full px-3 py-2 text-sm text-red-600 hover:bg-red-50"
+                    >
+                      <Trash2 className="h-3 w-3 mr-2" />
+                      Delete
+                    </button>
+                  </>
+                )}
               </div>
             )}
           </div>
@@ -114,6 +133,12 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, roles, onStatusChange, onEdit
             {task.status === 'todo' ? 'To Do' : 
              task.status === 'in-progress' ? 'In Progress' : 'Done'}
           </span>
+          {isViewOnly && (
+            <span className="text-xs px-2 py-1 rounded-full bg-gray-100 text-gray-600">
+              <Eye className="h-3 w-3 inline mr-1" />
+              View Only
+            </span>
+          )}
         </div>
 
         {/* Assigned Positions */}
@@ -178,7 +203,7 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, roles, onStatusChange, onEdit
         )}
 
         {/* Action Button */}
-        {nextStatus && nextStatusLabel && (
+        {nextStatus && nextStatusLabel && !isViewOnly && (
           <button
             onClick={() => onStatusChange(task.id, nextStatus)}
             className={`w-full flex items-center justify-center space-x-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
