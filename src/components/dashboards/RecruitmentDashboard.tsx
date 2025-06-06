@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { UserPlus, Phone, Mail, MapPin, Calendar, Plus, Search, X, Trash2, Eye, Archive } from 'lucide-react';
 import GoogleDriveIntegration from '../shared/GoogleDriveIntegration';
 import GoogleCalendarIntegration from '../shared/GoogleCalendarIntegration';
+import { UniversityContact } from '../../types/UniversityContact';
+import { contactService } from '../../services/contactService';
 
 const RecruitmentDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState('contacts');
@@ -12,53 +14,14 @@ const RecruitmentDashboard: React.FC = () => {
   const [filterStatus, setFilterStatus] = useState('all');
   const [notifications, setNotifications] = useState<Array<{id: string, message: string, type: 'success' | 'info' | 'warning'}>>([]);
 
-  const [universityContacts, setUniversityContacts] = useState([
-    {
-      id: 1,
-      university: 'University of Michigan',
-      contact: 'Dr. Sarah Johnson',
-      position: 'Student Life Director',
-      email: 's.johnson@umich.edu',
-      phone: '(734) 555-0132',
-      lastContact: '2024-01-08',
-      status: 'Active',
-      interest: 'High',
-      nextStep: 'Campus visit scheduled',
-      notes: 'Very interested in KHK expansion. Scheduled campus visit for Jan 15.',
-      driveFileId: 'contact_umich_johnson',
-      calendarEventId: 'visit_umich_20240115'
-    },
-    {
-      id: 2,
-      university: 'Ohio State University',
-      contact: 'Mark Rodriguez',
-      position: 'Greek Life Coordinator',
-      email: 'rodriguez.45@osu.edu',
-      phone: '(614) 555-0187',
-      lastContact: '2024-01-05',
-      status: 'Follow-up',
-      interest: 'Medium',
-      nextStep: 'Send information packet',
-      notes: 'Requested detailed information about KHK programs and requirements.',
-      driveFileId: 'contact_osu_rodriguez',
-      calendarEventId: 'followup_osu_20240112'
-    },
-    {
-      id: 3,
-      university: 'Penn State University',
-      contact: 'Lisa Chen',
-      position: 'Dean of Students',
-      email: 'lchen@psu.edu',
-      phone: '(814) 555-0234',
-      lastContact: '2024-01-03',
-      status: 'Contacted',
-      interest: 'High',
-      nextStep: 'Schedule phone call',
-      notes: 'Initial contact made. Positive response, wants to discuss further.',
-      driveFileId: 'contact_psu_chen',
-      calendarEventId: 'call_psu_20240110'
-    }
-  ]);
+  const [universityContacts, setUniversityContacts] = useState<UniversityContact[]>([]);
+
+  useEffect(() => {
+    contactService
+      .list()
+      .then(setUniversityContacts)
+      .catch((err) => console.error('Failed to load contacts', err));
+  }, []);
 
   const [outreachStats, setOutreachStats] = useState([
     { metric: 'Universities Contacted', value: 47, target: 50, change: '+3 this week' },
@@ -129,31 +92,43 @@ const RecruitmentDashboard: React.FC = () => {
     }, 3000);
   };
 
-  const handleAddContact = (contactData: any) => {
-    const newContact = {
-      ...contactData,
-      id: Date.now(),
-      lastContact: new Date().toISOString().split('T')[0],
-      driveFileId: `contact_${Date.now()}`,
-      calendarEventId: null
-    };
-    setUniversityContacts(prev => [newContact, ...prev]);
-    setShowAddContactModal(false);
-    addNotification('Contact added and saved to Google Drive');
+  const handleAddContact = async (contactData: any) => {
+    try {
+      const created = await contactService.create(contactData);
+      setUniversityContacts(prev => [created, ...prev]);
+      setShowAddContactModal(false);
+      addNotification('Contact added');
+    } catch (error) {
+      console.error('Failed to add contact', error);
+      addNotification('Failed to add contact', 'warning');
+    }
   };
 
-  const handleUpdateContact = (contactData: any) => {
-    setUniversityContacts(prev => prev.map(contact => 
-      contact.id === editingContact.id ? { ...contact, ...contactData } : contact
-    ));
-    setEditingContact(null);
-    setShowContactModal(false);
-    addNotification('Contact updated in Google Drive');
+  const handleUpdateContact = async (contactData: any) => {
+    if (!editingContact) return;
+    try {
+      const updated = await contactService.update(editingContact.id, contactData);
+      setUniversityContacts(prev => prev.map(contact =>
+        contact.id === editingContact.id ? updated : contact
+      ));
+      setEditingContact(null);
+      setShowContactModal(false);
+      addNotification('Contact updated');
+    } catch (error) {
+      console.error('Failed to update contact', error);
+      addNotification('Failed to update contact', 'warning');
+    }
   };
 
-  const handleDeleteContact = (contactId: number) => {
-    setUniversityContacts(prev => prev.filter(contact => contact.id !== contactId));
-    addNotification('Contact deleted from Google Drive');
+  const handleDeleteContact = async (contactId: number) => {
+    try {
+      await contactService.delete(contactId);
+      setUniversityContacts(prev => prev.filter(contact => contact.id !== contactId));
+      addNotification('Contact deleted');
+    } catch (error) {
+      console.error('Failed to delete contact', error);
+      addNotification('Failed to delete contact', 'warning');
+    }
   };
 
   const handleUseTemplate = (templateId: number) => {
@@ -192,9 +167,9 @@ const RecruitmentDashboard: React.FC = () => {
       notes: ''
     });
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
       e.preventDefault();
-      handleAddContact(formData);
+      await handleAddContact(formData);
     };
 
     return (
