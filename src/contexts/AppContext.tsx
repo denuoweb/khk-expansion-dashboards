@@ -4,6 +4,7 @@ import { Notification } from '../types/Notification';
 import { Task } from '../types/Task';
 import { authService } from '../services/authService';
 import { taskService } from '../services/taskService';
+import { contactService } from '../services/contactService';
 
 interface AppContextType {
   // User & Authentication
@@ -68,10 +69,12 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     if (userSession) {
       setCurrentUser(userSession.user);
       taskService.setAuthToken(userSession.token);
+      contactService.setAuthToken(userSession.token);
       localStorage.setItem('khk-session', JSON.stringify(userSession));
     } else {
       setCurrentUser(null);
       taskService.setAuthToken(null);
+      contactService.setAuthToken(null);
       localStorage.removeItem('khk-session');
     }
   }, [userSession]);
