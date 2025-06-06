@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Users, Target, FileText, Megaphone, UserPlus, Shield, BarChart3, Settings } from 'lucide-react';
+import { AppProvider } from './contexts/AppContext';
 import RoleSelector from './components/RoleSelector';
 import DashboardLayout from './components/DashboardLayout';
 import TaskBoard from './components/TaskManagement/TaskBoard';
@@ -118,20 +119,26 @@ function App() {
   };
 
   if (!selectedRole) {
-    return <RoleSelector roles={roles} onRoleSelect={setSelectedRole} />;
+    return (
+      <AppProvider>
+        <RoleSelector roles={roles} onRoleSelect={setSelectedRole} />
+      </AppProvider>
+    );
   }
 
   return (
-    <DashboardLayout 
-      role={selectedRole} 
-      onRoleChange={() => {
-        setSelectedRole(null);
-        setViewMode('dashboard');
-      }}
-      onTasksClick={() => setViewMode(viewMode === 'tasks' ? 'dashboard' : 'tasks')}
-    >
-      {renderContent()}
-    </DashboardLayout>
+    <AppProvider>
+      <DashboardLayout 
+        role={selectedRole} 
+        onRoleChange={() => {
+          setSelectedRole(null);
+          setViewMode('dashboard');
+        }}
+        onTasksClick={() => setViewMode(viewMode === 'tasks' ? 'dashboard' : 'tasks')}
+      >
+        {renderContent()}
+      </DashboardLayout>
+    </AppProvider>
   );
 }
 
