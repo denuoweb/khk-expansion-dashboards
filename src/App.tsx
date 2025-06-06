@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Users, Target, FileText, Megaphone, UserPlus, Shield, BarChart3, Settings } from 'lucide-react';
+import { Users, Target, FileText, Megaphone, UserPlus, Shield, BarChart3 } from 'lucide-react';
 import { AppProvider } from './contexts/AppContext';
 import RoleSelector from './components/RoleSelector';
 import DashboardLayout from './components/DashboardLayout';
@@ -16,7 +16,7 @@ import DataAnalyticsDashboard from './components/dashboards/DataAnalyticsDashboa
 export interface Role {
   id: string;
   name: string;
-  icon: React.ComponentType<any>;
+  icon: React.ComponentType<unknown>;
   color: string;
   description: string;
 }

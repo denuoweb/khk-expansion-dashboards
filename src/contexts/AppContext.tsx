@@ -2,7 +2,6 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 import { User, UserSession } from '../types/User';
 import { Notification } from '../types/Notification';
 import { Task } from '../types/Task';
-import { Role } from '../App';
 
 interface AppContextType {
   // User & Authentication
@@ -26,8 +25,8 @@ interface AppContextType {
   setTheme: (theme: 'light' | 'dark') => void;
   
   // Cross-dashboard data sharing
-  sharedData: Record<string, any>;
-  updateSharedData: (key: string, value: any) => void;
+  sharedData: Record<string, unknown>;
+  updateSharedData: (key: string, value: unknown) => void;
   
   // Real-time updates
   lastDataSync: string;
@@ -54,7 +53,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [globalTasks, setGlobalTasks] = useState<Task[]>([]);
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
-  const [sharedData, setSharedData] = useState<Record<string, any>>({});
+  const [sharedData, setSharedData] = useState<Record<string, unknown>>({});
   const [lastDataSync, setLastDataSync] = useState<string>(new Date().toISOString());
 
   // Initialize user from session
@@ -117,7 +116,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
 
   const unreadCount = notifications.filter(n => !n.read).length;
 
-  const updateSharedData = (key: string, value: any) => {
+  const updateSharedData = (key: string, value: unknown) => {
     setSharedData(prev => ({ ...prev, [key]: value }));
   };
 

@@ -82,7 +82,7 @@ const TaskBoard: React.FC<TaskBoardProps> = ({ roles, currentRole }) => {
   const [viewMode, setViewMode] = useState<'kanban' | 'list'>('kanban');
   const [showFilters, setShowFilters] = useState(false);
 
-  const columns: { status: TaskStatus; title: string; icon: React.ComponentType<any>; color: string }[] = [
+  const columns: { status: TaskStatus; title: string; icon: React.ComponentType<unknown>; color: string }[] = [
     { status: 'todo', title: 'To Do', icon: Clock, color: 'text-gray-600' },
     { status: 'in-progress', title: 'In Progress', icon: AlertCircle, color: 'text-blue-600' },
     { status: 'done', title: 'Done', icon: CheckCircle, color: 'text-green-600' }

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { UserPlus, Phone, Mail, MapPin, Calendar, Filter, Plus, Search, X, Save, Edit, Trash2, Eye, Archive } from 'lucide-react';
+import { UserPlus, Phone, Mail, MapPin, Calendar, Plus, Search, X, Trash2, Eye, Archive } from 'lucide-react';
 import GoogleDriveIntegration from '../shared/GoogleDriveIntegration';
 import GoogleCalendarIntegration from '../shared/GoogleCalendarIntegration';
 

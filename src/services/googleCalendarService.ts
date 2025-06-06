@@ -84,6 +84,9 @@ class GoogleCalendarService {
   }
 
   async getEvents(calendarId: string = 'primary', timeMin?: string, timeMax?: string): Promise<CalendarEvent[]> {
+    void calendarId;
+    void timeMin;
+    void timeMax;
     await new Promise(resolve => setTimeout(resolve, 400));
     
     return [
@@ -154,6 +157,7 @@ class GoogleCalendarService {
   }
 
   async createEvent(calendarId: string, event: Partial<CalendarEvent>): Promise<CalendarEvent> {
+    void calendarId;
     await new Promise(resolve => setTimeout(resolve, 600));
     
     const newEvent: CalendarEvent = {
@@ -192,6 +196,8 @@ class GoogleCalendarService {
   }
 
   async deleteEvent(calendarId: string, eventId: string): Promise<boolean> {
+    void calendarId;
+    void eventId;
     await new Promise(resolve => setTimeout(resolve, 300));
     return true;
   }

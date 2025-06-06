@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Shield, Users, Calendar, BookOpen, Award, Clock, Archive, Video } from 'lucide-react';
+import { Shield, Users, Calendar, BookOpen, Award, Archive, Video } from 'lucide-react';
 import GoogleDriveIntegration from '../shared/GoogleDriveIntegration';
 import GoogleCalendarIntegration from '../shared/GoogleCalendarIntegration';
 

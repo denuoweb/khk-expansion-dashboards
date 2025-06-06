@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Target, TrendingUp, AlertTriangle, Users, Activity, Calendar, Plus, Edit, Download, RefreshCw, X, Save, Trash2 } from 'lucide-react';
+import { Target, TrendingUp, AlertTriangle, Users, Activity, Plus, Edit, Download, RefreshCw, X, Trash2 } from 'lucide-react';
 
 const ViceChairDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState('kpi');
