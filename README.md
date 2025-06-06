@@ -22,15 +22,14 @@ frontend.  During development you normally run them separately.
    cp .env.sample .env
    # edit .env and set DATABASE_URL and SECRET_KEY
    ```
-3. **Initialize the database**
+3. **Configure the chair account** – add a password to `.env`:
    ```bash
-   python -m app.create_db
+   echo "CHAIR_PASSWORD=my-secret" >> .env
+   # optionally set CHAIR_EMAIL=user@example.com
    ```
-4. **Set the chair password**
-   ```bash
-   CHAIR_PASSWORD=my-secret python -m app.set_chair_password
-   ```
-5. **Run the API** in autoreload mode on port 8000:
+   The database tables and chair user will be created automatically on first
+   launch.
+4. **Run the API** in autoreload mode on port 8000:
    ```bash
    uvicorn app.main:app --reload --port 8000
    ```
