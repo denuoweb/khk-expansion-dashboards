@@ -1,10 +1,865 @@
 import React, { useState, useEffect } from 'react';
-import { Users, Target, TrendingUp, AlertCircle, CheckCircle, Calendar, Plus, Filter, Download, Bell, ArrowUp, ArrowDown, Eye, Edit, Trash2, MoreVertical } from 'lucide-react';
+import { Users, Target, TrendingUp, AlertCircle, CheckCircle, Calendar, Plus, Filter, Download, Bell, ArrowUp, ArrowDown, Eye, Edit, Trash2, MoreVertical, X, FileText, Clock, Send, UserPlus, Settings } from 'lucide-react';
+
+// Modal Components
+const NECReportModal: React.FC<{ isOpen: boolean; onClose: () => void; onGenerate: (data: any) => void }> = ({ isOpen, onClose, onGenerate }) => {
+  const [reportData, setReportData] = useState({
+    period: 'Q1 2024',
+    includeKPIs: true,
+    includeFinancials: true,
+    includeRisks: true,
+    includeRecommendations: true,
+    format: 'PDF'
+  });
+
+  if (!isOpen) return null;
+
+  const handleGenerate = () => {
+    onGenerate(reportData);
+    onClose();
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-xl shadow-xl max-w-md w-full">
+        <div className="flex items-center justify-between p-6 border-b border-gray-200">
+          <h2 className="text-xl font-semibold text-gray-900">Generate NEC Report</h2>
+          <button onClick={onClose} className="p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100">
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+        
+        <div className="p-6 space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Report Period</label>
+            <select 
+              value={reportData.period}
+              onChange={(e) => setReportData(prev => ({ ...prev, period: e.target.value }))}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="Q1 2024">Q1 2024</option>
+              <option value="Q4 2023">Q4 2023</option>
+              <option value="Annual 2023">Annual 2023</option>
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Include Sections</label>
+            <div className="space-y-2">
+              {[
+                { key: 'includeKPIs', label: 'KPI Metrics' },
+                { key: 'includeFinancials', label: 'Financial Summary' },
+                { key: 'includeRisks', label: 'Risk Assessment' },
+                { key: 'includeRecommendations', label: 'Recommendations' }
+              ].map(({ key, label }) => (
+                <label key={key} className="flex items-center">
+                  <input
+                    type="checkbox"
+                    checked={reportData[key as keyof typeof reportData] as boolean}
+                    onChange={(e) => setReportData(prev => ({ ...prev, [key]: e.target.checked }))}
+                    className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                  />
+                  <span className="ml-2 text-sm text-gray-700">{label}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Format</label>
+            <select 
+              value={reportData.format}
+              onChange={(e) => setReportData(prev => ({ ...prev, format: e.target.value }))}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="PDF">PDF</option>
+              <option value="Excel">Excel</option>
+              <option value="PowerPoint">PowerPoint</option>
+            </select>
+          </div>
+        </div>
+
+        <div className="flex justify-end space-x-3 p-6 border-t border-gray-200">
+          <button onClick={onClose} className="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200">
+            Cancel
+          </button>
+          <button onClick={handleGenerate} className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+            Generate Report
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const TeamMeetingModal: React.FC<{ isOpen: boolean; onClose: () => void; onSchedule: (data: any) => void }> = ({ isOpen, onClose, onSchedule }) => {
+  const [meetingData, setMeetingData] = useState({
+    title: 'Weekly Officer Meeting',
+    date: '',
+    time: '14:00',
+    duration: '90',
+    attendees: [] as string[],
+    agenda: '',
+    location: 'Conference Room A'
+  });
+
+  const officers = [
+    'Vice-Chair', 'Secretary', 'Marketing Specialist', 'Recruitment Coordinator',
+    'Chapter Development', 'Compliance Officer', 'Data Analytics Manager'
+  ];
+
+  if (!isOpen) return null;
+
+  const handleSchedule = () => {
+    onSchedule(meetingData);
+    onClose();
+  };
+
+  const toggleAttendee = (officer: string) => {
+    setMeetingData(prev => ({
+      ...prev,
+      attendees: prev.attendees.includes(officer)
+        ? prev.attendees.filter(a => a !== officer)
+        : [...prev.attendees, officer]
+    }));
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-xl shadow-xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
+        <div className="flex items-center justify-between p-6 border-b border-gray-200">
+          <h2 className="text-xl font-semibold text-gray-900">Schedule Team Meeting</h2>
+          <button onClick={onClose} className="p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100">
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+        
+        <div className="p-6 space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Meeting Title</label>
+            <input
+              type="text"
+              value={meetingData.title}
+              onChange={(e) => setMeetingData(prev => ({ ...prev, title: e.target.value }))}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Date</label>
+              <input
+                type="date"
+                value={meetingData.date}
+                onChange={(e) => setMeetingData(prev => ({ ...prev, date: e.target.value }))}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Time</label>
+              <input
+                type="time"
+                value={meetingData.time}
+                onChange={(e) => setMeetingData(prev => ({ ...prev, time: e.target.value }))}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Duration (minutes)</label>
+            <select 
+              value={meetingData.duration}
+              onChange={(e) => setMeetingData(prev => ({ ...prev, duration: e.target.value }))}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="30">30 minutes</option>
+              <option value="60">1 hour</option>
+              <option value="90">1.5 hours</option>
+              <option value="120">2 hours</option>
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Attendees</label>
+            <div className="space-y-2 max-h-32 overflow-y-auto">
+              {officers.map(officer => (
+                <label key={officer} className="flex items-center">
+                  <input
+                    type="checkbox"
+                    checked={meetingData.attendees.includes(officer)}
+                    onChange={() => toggleAttendee(officer)}
+                    className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                  />
+                  <span className="ml-2 text-sm text-gray-700">{officer}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Location</label>
+            <input
+              type="text"
+              value={meetingData.location}
+              onChange={(e) => setMeetingData(prev => ({ ...prev, location: e.target.value }))}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Agenda</label>
+            <textarea
+              value={meetingData.agenda}
+              onChange={(e) => setMeetingData(prev => ({ ...prev, agenda: e.target.value }))}
+              rows={3}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              placeholder="Meeting agenda items..."
+            />
+          </div>
+        </div>
+
+        <div className="flex justify-end space-x-3 p-6 border-t border-gray-200">
+          <button onClick={onClose} className="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200">
+            Cancel
+          </button>
+          <button onClick={handleSchedule} className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
+            Schedule Meeting
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const KPITargetsModal: React.FC<{ isOpen: boolean; onClose: () => void; onUpdate: (data: any) => void; currentKPIs: any[] }> = ({ isOpen, onClose, onUpdate, currentKPIs }) => {
+  const [targets, setTargets] = useState(
+    currentKPIs.map(kpi => ({ label: kpi.label, target: kpi.target, notes: '' }))
+  );
+
+  if (!isOpen) return null;
+
+  const handleUpdate = () => {
+    onUpdate(targets);
+    onClose();
+  };
+
+  const updateTarget = (index: number, field: string, value: any) => {
+    setTargets(prev => prev.map((target, i) => 
+      i === index ? { ...target, [field]: value } : target
+    ));
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+        <div className="flex items-center justify-between p-6 border-b border-gray-200">
+          <h2 className="text-xl font-semibold text-gray-900">Review KPI Targets</h2>
+          <button onClick={onClose} className="p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100">
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+        
+        <div className="p-6 space-y-4">
+          {targets.map((target, index) => (
+            <div key={index} className="border border-gray-200 rounded-lg p-4">
+              <h4 className="font-medium text-gray-900 mb-3">{target.label}</h4>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Target Value</label>
+                  <input
+                    type="number"
+                    value={target.target}
+                    onChange={(e) => updateTarget(index, 'target', parseInt(e.target.value))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Notes</label>
+                  <input
+                    type="text"
+                    value={target.notes}
+                    onChange={(e) => updateTarget(index, 'notes', e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                    placeholder="Adjustment notes..."
+                  />
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div className="flex justify-end space-x-3 p-6 border-t border-gray-200">
+          <button onClick={onClose} className="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200">
+            Cancel
+          </button>
+          <button onClick={handleUpdate} className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700">
+            Update Targets
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const IssuesRisksModal: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ isOpen, onClose }) => {
+  const [activeTab, setActiveTab] = useState<'issues' | 'risks'>('issues');
+
+  const issues = [
+    { id: 1, title: 'Penn State Compliance Delay', severity: 'High', status: 'Open', assignee: 'Compliance Officer', description: 'University policy review taking longer than expected' },
+    { id: 2, title: 'Marketing Template Approval', severity: 'Medium', status: 'In Progress', assignee: 'Marketing Specialist', description: 'Brand guidelines need final approval from NEC' },
+    { id: 3, title: 'Ohio State Contact Unresponsive', severity: 'Medium', status: 'Open', assignee: 'Recruitment Coordinator', description: 'Primary contact has not responded to follow-up emails' }
+  ];
+
+  const risks = [
+    { id: 1, title: 'Budget Overrun Risk', probability: 'Medium', impact: 'High', mitigation: 'Weekly budget reviews implemented', owner: 'Treasurer' },
+    { id: 2, title: 'University Policy Changes', probability: 'Low', impact: 'High', mitigation: 'Regular policy monitoring and compliance audits', owner: 'Compliance Officer' },
+    { id: 3, title: 'Key Personnel Departure', probability: 'Low', impact: 'Medium', mitigation: 'Succession planning and cross-training', owner: 'Vice-Chair' }
+  ];
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-xl shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+        <div className="flex items-center justify-between p-6 border-b border-gray-200">
+          <h2 className="text-xl font-semibold text-gray-900">Issues & Risks Management</h2>
+          <button onClick={onClose} className="p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100">
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+        
+        <div className="border-b border-gray-200">
+          <nav className="-mb-px flex space-x-8 px-6">
+            {[
+              { id: 'issues', name: 'Current Issues', count: issues.length },
+              { id: 'risks', name: 'Risk Register', count: risks.length }
+            ].map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id as 'issues' | 'risks')}
+                className={`py-4 px-1 border-b-2 font-medium text-sm flex items-center space-x-2 ${
+                  activeTab === tab.id
+                    ? 'border-yellow-500 text-yellow-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                <span>{tab.name}</span>
+                <span className="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded-full">{tab.count}</span>
+              </button>
+            ))}
+          </nav>
+        </div>
+
+        <div className="p-6">
+          {activeTab === 'issues' && (
+            <div className="space-y-4">
+              {issues.map(issue => (
+                <div key={issue.id} className="border border-gray-200 rounded-lg p-4">
+                  <div className="flex justify-between items-start mb-2">
+                    <h4 className="font-medium text-gray-900">{issue.title}</h4>
+                    <div className="flex space-x-2">
+                      <span className={`text-xs px-2 py-1 rounded-full ${
+                        issue.severity === 'High' ? 'bg-red-100 text-red-800' :
+                        issue.severity === 'Medium' ? 'bg-yellow-100 text-yellow-800' :
+                        'bg-green-100 text-green-800'
+                      }`}>
+                        {issue.severity}
+                      </span>
+                      <span className={`text-xs px-2 py-1 rounded-full ${
+                        issue.status === 'Open' ? 'bg-red-100 text-red-800' :
+                        'bg-blue-100 text-blue-800'
+                      }`}>
+                        {issue.status}
+                      </span>
+                    </div>
+                  </div>
+                  <p className="text-gray-600 text-sm mb-2">{issue.description}</p>
+                  <p className="text-sm text-gray-500">Assigned to: {issue.assignee}</p>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {activeTab === 'risks' && (
+            <div className="space-y-4">
+              {risks.map(risk => (
+                <div key={risk.id} className="border border-gray-200 rounded-lg p-4">
+                  <div className="flex justify-between items-start mb-2">
+                    <h4 className="font-medium text-gray-900">{risk.title}</h4>
+                    <div className="flex space-x-2">
+                      <span className="text-xs px-2 py-1 rounded-full bg-blue-100 text-blue-800">
+                        {risk.probability} Probability
+                      </span>
+                      <span className="text-xs px-2 py-1 rounded-full bg-orange-100 text-orange-800">
+                        {risk.impact} Impact
+                      </span>
+                    </div>
+                  </div>
+                  <p className="text-gray-600 text-sm mb-2">Mitigation: {risk.mitigation}</p>
+                  <p className="text-sm text-gray-500">Owner: {risk.owner}</p>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div className="flex justify-end space-x-3 p-6 border-t border-gray-200">
+          <button className="px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700">
+            Add New Issue
+          </button>
+          <button onClick={onClose} className="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200">
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const CheckInModal: React.FC<{ isOpen: boolean; onClose: () => void; onSchedule: (data: any) => void }> = ({ isOpen, onClose, onSchedule }) => {
+  const [checkInData, setCheckInData] = useState({
+    officer: '',
+    type: 'weekly',
+    date: '',
+    time: '10:00',
+    topics: [] as string[],
+    notes: ''
+  });
+
+  const officers = [
+    'Vice-Chair', 'Secretary', 'Marketing Specialist', 'Recruitment Coordinator',
+    'Chapter Development', 'Compliance Officer', 'Data Analytics Manager'
+  ];
+
+  const topicOptions = [
+    'KPI Review', 'Task Progress', 'Challenges & Blockers', 'Resource Needs',
+    'Upcoming Deadlines', 'Strategic Planning', 'Team Coordination'
+  ];
+
+  if (!isOpen) return null;
+
+  const handleSchedule = () => {
+    onSchedule(checkInData);
+    onClose();
+  };
+
+  const toggleTopic = (topic: string) => {
+    setCheckInData(prev => ({
+      ...prev,
+      topics: prev.topics.includes(topic)
+        ? prev.topics.filter(t => t !== topic)
+        : [...prev.topics, topic]
+    }));
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-xl shadow-xl max-w-lg w-full">
+        <div className="flex items-center justify-between p-6 border-b border-gray-200">
+          <h2 className="text-xl font-semibold text-gray-900">Schedule Check-in</h2>
+          <button onClick={onClose} className="p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100">
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+        
+        <div className="p-6 space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Officer</label>
+            <select 
+              value={checkInData.officer}
+              onChange={(e) => setCheckInData(prev => ({ ...prev, officer: e.target.value }))}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="">Select Officer</option>
+              {officers.map(officer => (
+                <option key={officer} value={officer}>{officer}</option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Check-in Type</label>
+            <select 
+              value={checkInData.type}
+              onChange={(e) => setCheckInData(prev => ({ ...prev, type: e.target.value }))}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="weekly">Weekly Check-in</option>
+              <option value="monthly">Monthly Review</option>
+              <option value="quarterly">Quarterly Assessment</option>
+              <option value="ad-hoc">Ad-hoc Discussion</option>
+            </select>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Date</label>
+              <input
+                type="date"
+                value={checkInData.date}
+                onChange={(e) => setCheckInData(prev => ({ ...prev, date: e.target.value }))}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Time</label>
+              <input
+                type="time"
+                value={checkInData.time}
+                onChange={(e) => setCheckInData(prev => ({ ...prev, time: e.target.value }))}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Discussion Topics</label>
+            <div className="space-y-2 max-h-32 overflow-y-auto">
+              {topicOptions.map(topic => (
+                <label key={topic} className="flex items-center">
+                  <input
+                    type="checkbox"
+                    checked={checkInData.topics.includes(topic)}
+                    onChange={() => toggleTopic(topic)}
+                    className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                  />
+                  <span className="ml-2 text-sm text-gray-700">{topic}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Notes</label>
+            <textarea
+              value={checkInData.notes}
+              onChange={(e) => setCheckInData(prev => ({ ...prev, notes: e.target.value }))}
+              rows={3}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              placeholder="Additional notes or specific items to discuss..."
+            />
+          </div>
+        </div>
+
+        <div className="flex justify-end space-x-3 p-6 border-t border-gray-200">
+          <button onClick={onClose} className="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200">
+            Cancel
+          </button>
+          <button onClick={handleSchedule} className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+            Schedule Check-in
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const AddDeadlineModal: React.FC<{ isOpen: boolean; onClose: () => void; onAdd: (data: any) => void }> = ({ isOpen, onClose, onAdd }) => {
+  const [deadlineData, setDeadlineData] = useState({
+    task: '',
+    description: '',
+    dueDate: '',
+    priority: 'Medium',
+    category: 'General',
+    assignedTo: '',
+    status: 'Not Started'
+  });
+
+  const officers = [
+    'Vice-Chair', 'Secretary', 'Marketing Specialist', 'Recruitment Coordinator',
+    'Chapter Development', 'Compliance Officer', 'Data Analytics Manager', 'Treasurer'
+  ];
+
+  const categories = [
+    'Reporting', 'Outreach', 'Development', 'Administration', 'Compliance', 'Marketing', 'Analytics'
+  ];
+
+  if (!isOpen) return null;
+
+  const handleAdd = () => {
+    onAdd({
+      ...deadlineData,
+      id: Date.now(),
+      completion: 0
+    });
+    onClose();
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-xl shadow-xl max-w-lg w-full">
+        <div className="flex items-center justify-between p-6 border-b border-gray-200">
+          <h2 className="text-xl font-semibold text-gray-900">Add New Deadline</h2>
+          <button onClick={onClose} className="p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100">
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+        
+        <div className="p-6 space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Task Title</label>
+            <input
+              type="text"
+              value={deadlineData.task}
+              onChange={(e) => setDeadlineData(prev => ({ ...prev, task: e.target.value }))}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              placeholder="Enter task title..."
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
+            <textarea
+              value={deadlineData.description}
+              onChange={(e) => setDeadlineData(prev => ({ ...prev, description: e.target.value }))}
+              rows={3}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              placeholder="Task description..."
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Due Date</label>
+              <input
+                type="date"
+                value={deadlineData.dueDate}
+                onChange={(e) => setDeadlineData(prev => ({ ...prev, dueDate: e.target.value }))}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Priority</label>
+              <select 
+                value={deadlineData.priority}
+                onChange={(e) => setDeadlineData(prev => ({ ...prev, priority: e.target.value }))}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="High">High</option>
+                <option value="Medium">Medium</option>
+                <option value="Low">Low</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Category</label>
+              <select 
+                value={deadlineData.category}
+                onChange={(e) => setDeadlineData(prev => ({ ...prev, category: e.target.value }))}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              >
+                {categories.map(category => (
+                  <option key={category} value={category}>{category}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Assigned To</label>
+              <select 
+                value={deadlineData.assignedTo}
+                onChange={(e) => setDeadlineData(prev => ({ ...prev, assignedTo: e.target.value }))}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">Select Officer</option>
+                {officers.map(officer => (
+                  <option key={officer} value={officer}>{officer}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div className="flex justify-end space-x-3 p-6 border-t border-gray-200">
+          <button onClick={onClose} className="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200">
+            Cancel
+          </button>
+          <button onClick={handleAdd} className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+            Add Deadline
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const CreateReportModal: React.FC<{ isOpen: boolean; onClose: () => void; onCreate: (data: any) => void }> = ({ isOpen, onClose, onCreate }) => {
+  const [reportData, setReportData] = useState({
+    name: '',
+    type: 'Executive',
+    frequency: 'Monthly',
+    recipients: [] as string[],
+    sections: [] as string[],
+    format: 'PDF'
+  });
+
+  const recipientOptions = [
+    'NEC', 'Officers', 'Alumni Board', 'Regional Directors', 'Colony Leaders'
+  ];
+
+  const sectionOptions = [
+    'Executive Summary', 'KPI Metrics', 'Financial Summary', 'Risk Assessment',
+    'Officer Reports', 'University Updates', 'Recommendations', 'Action Items'
+  ];
+
+  if (!isOpen) return null;
+
+  const handleCreate = () => {
+    onCreate({
+      ...reportData,
+      id: Date.now(),
+      lastGenerated: 'Never',
+      status: 'Draft'
+    });
+    onClose();
+  };
+
+  const toggleRecipient = (recipient: string) => {
+    setReportData(prev => ({
+      ...prev,
+      recipients: prev.recipients.includes(recipient)
+        ? prev.recipients.filter(r => r !== recipient)
+        : [...prev.recipients, recipient]
+    }));
+  };
+
+  const toggleSection = (section: string) => {
+    setReportData(prev => ({
+      ...prev,
+      sections: prev.sections.includes(section)
+        ? prev.sections.filter(s => s !== section)
+        : [...prev.sections, section]
+    }));
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-xl shadow-xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
+        <div className="flex items-center justify-between p-6 border-b border-gray-200">
+          <h2 className="text-xl font-semibold text-gray-900">Create New Report</h2>
+          <button onClick={onClose} className="p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100">
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+        
+        <div className="p-6 space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Report Name</label>
+            <input
+              type="text"
+              value={reportData.name}
+              onChange={(e) => setReportData(prev => ({ ...prev, name: e.target.value }))}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              placeholder="Enter report name..."
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Type</label>
+              <select 
+                value={reportData.type}
+                onChange={(e) => setReportData(prev => ({ ...prev, type: e.target.value }))}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="Executive">Executive</option>
+                <option value="Analytics">Analytics</option>
+                <option value="Strategic">Strategic</option>
+                <option value="Operational">Operational</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Frequency</label>
+              <select 
+                value={reportData.frequency}
+                onChange={(e) => setReportData(prev => ({ ...prev, frequency: e.target.value }))}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="Weekly">Weekly</option>
+                <option value="Monthly">Monthly</option>
+                <option value="Quarterly">Quarterly</option>
+                <option value="On-demand">On-demand</option>
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Recipients</label>
+            <div className="space-y-2 max-h-32 overflow-y-auto">
+              {recipientOptions.map(recipient => (
+                <label key={recipient} className="flex items-center">
+                  <input
+                    type="checkbox"
+                    checked={reportData.recipients.includes(recipient)}
+                    onChange={() => toggleRecipient(recipient)}
+                    className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                  />
+                  <span className="ml-2 text-sm text-gray-700">{recipient}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Report Sections</label>
+            <div className="space-y-2 max-h-32 overflow-y-auto">
+              {sectionOptions.map(section => (
+                <label key={section} className="flex items-center">
+                  <input
+                    type="checkbox"
+                    checked={reportData.sections.includes(section)}
+                    onChange={() => toggleSection(section)}
+                    className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                  />
+                  <span className="ml-2 text-sm text-gray-700">{section}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Format</label>
+            <select 
+              value={reportData.format}
+              onChange={(e) => setReportData(prev => ({ ...prev, format: e.target.value }))}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="PDF">PDF</option>
+              <option value="Excel">Excel</option>
+              <option value="PowerPoint">PowerPoint</option>
+              <option value="Word">Word</option>
+            </select>
+          </div>
+        </div>
+
+        <div className="flex justify-end space-x-3 p-6 border-t border-gray-200">
+          <button onClick={onClose} className="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200">
+            Cancel
+          </button>
+          <button onClick={handleCreate} className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+            Create Report
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 const ChairDashboard: React.FC = () => {
   const [activeView, setActiveView] = useState<'overview' | 'kpi' | 'roles' | 'deadlines' | 'reports'>('overview');
   const [selectedTimeframe, setSelectedTimeframe] = useState<'week' | 'month' | 'quarter'>('month');
   const [showNotifications, setShowNotifications] = useState(false);
+
+  // Modal states
+  const [showNECReportModal, setShowNECReportModal] = useState(false);
+  const [showTeamMeetingModal, setShowTeamMeetingModal] = useState(false);
+  const [showKPITargetsModal, setShowKPITargetsModal] = useState(false);
+  const [showIssuesRisksModal, setShowIssuesRisksModal] = useState(false);
+  const [showCheckInModal, setShowCheckInModal] = useState(false);
+  const [showAddDeadlineModal, setShowAddDeadlineModal] = useState(false);
+  const [showCreateReportModal, setShowCreateReportModal] = useState(false);
 
   // Enhanced KPI data with historical tracking
   const [kpiData, setKpiData] = useState([
@@ -275,6 +1130,70 @@ const ChairDashboard: React.FC = () => {
     }
   };
 
+  // Modal handlers
+  const handleGenerateNECReport = (data: any) => {
+    console.log('Generating NEC Report:', data);
+    // Add notification
+    setNotifications(prev => [{
+      id: Date.now(),
+      type: 'success',
+      message: `NEC Report for ${data.period} generated successfully`,
+      time: 'Just now'
+    }, ...prev]);
+  };
+
+  const handleScheduleTeamMeeting = (data: any) => {
+    console.log('Scheduling Team Meeting:', data);
+    setNotifications(prev => [{
+      id: Date.now(),
+      type: 'info',
+      message: `Team meeting "${data.title}" scheduled for ${data.date}`,
+      time: 'Just now'
+    }, ...prev]);
+  };
+
+  const handleUpdateKPITargets = (data: any) => {
+    console.log('Updating KPI Targets:', data);
+    setNotifications(prev => [{
+      id: Date.now(),
+      type: 'success',
+      message: 'KPI targets updated successfully',
+      time: 'Just now'
+    }, ...prev]);
+  };
+
+  const handleScheduleCheckIn = (data: any) => {
+    console.log('Scheduling Check-in:', data);
+    setNotifications(prev => [{
+      id: Date.now(),
+      type: 'info',
+      message: `Check-in scheduled with ${data.officer} for ${data.date}`,
+      time: 'Just now'
+    }, ...prev]);
+  };
+
+  const handleAddDeadline = (data: any) => {
+    console.log('Adding Deadline:', data);
+    setUpcomingDeadlines(prev => [...prev, data]);
+    setNotifications(prev => [{
+      id: Date.now(),
+      type: 'info',
+      message: `New deadline "${data.task}" added`,
+      time: 'Just now'
+    }, ...prev]);
+  };
+
+  const handleCreateReport = (data: any) => {
+    console.log('Creating Report:', data);
+    setReports(prev => [...prev, data]);
+    setNotifications(prev => [{
+      id: Date.now(),
+      type: 'success',
+      message: `Report template "${data.name}" created`,
+      time: 'Just now'
+    }, ...prev]);
+  };
+
   return (
     <div className="space-y-6">
       {/* Enhanced Header with Notifications */}
@@ -456,10 +1375,29 @@ const ChairDashboard: React.FC = () => {
             <div className="space-y-6">
               <div className="flex justify-between items-center">
                 <h3 className="text-xl font-semibold text-gray-900">Detailed KPI Analysis</h3>
-                <button className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-                  <Download className="h-4 w-4 mr-2" />
-                  Export Data
-                </button>
+                <div className="flex space-x-2">
+                  <button 
+                    onClick={() => setShowCheckInModal(true)}
+                    className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                  >
+                    <Calendar className="h-4 w-4 mr-2" />
+                    Schedule Check-in
+                  </button>
+                  <button 
+                    onClick={() => setShowAddDeadlineModal(true)}
+                    className="flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+                  >
+                    <Plus className="h-4 w-4 mr-2" />
+                    Add Deadline
+                  </button>
+                  <button 
+                    onClick={() => setShowCreateReportModal(true)}
+                    className="flex items-center px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
+                  >
+                    <FileText className="h-4 w-4 mr-2" />
+                    Create Report
+                  </button>
+                </div>
               </div>
 
               <div className="space-y-4">
@@ -553,7 +1491,10 @@ const ChairDashboard: React.FC = () => {
             <div className="space-y-6">
               <div className="flex justify-between items-center">
                 <h3 className="text-xl font-semibold text-gray-900">Officer Role Management</h3>
-                <button className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                <button 
+                  onClick={() => setShowCheckInModal(true)}
+                  className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                >
                   <Plus className="h-4 w-4 mr-2" />
                   Schedule Check-in
                 </button>
@@ -646,7 +1587,10 @@ const ChairDashboard: React.FC = () => {
                     <Filter className="h-4 w-4 mr-2" />
                     Filter
                   </button>
-                  <button className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                  <button 
+                    onClick={() => setShowAddDeadlineModal(true)}
+                    className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                  >
                     <Plus className="h-4 w-4 mr-2" />
                     Add Deadline
                   </button>
@@ -731,7 +1675,10 @@ const ChairDashboard: React.FC = () => {
             <div className="space-y-6">
               <div className="flex justify-between items-center">
                 <h3 className="text-xl font-semibold text-gray-900">Report Management</h3>
-                <button className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                <button 
+                  onClick={() => setShowCreateReportModal(true)}
+                  className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                >
                   <Plus className="h-4 w-4 mr-2" />
                   Create Report
                 </button>
@@ -801,24 +1748,73 @@ const ChairDashboard: React.FC = () => {
       <div className="bg-white rounded-xl shadow-sm p-6">
         <h3 className="text-xl font-semibold text-gray-900 mb-6">Quick Actions</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <button className="flex items-center justify-center p-4 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors group">
+          <button 
+            onClick={() => setShowNECReportModal(true)}
+            className="flex items-center justify-center p-4 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors group"
+          >
             <TrendingUp className="h-6 w-6 text-blue-600 mr-2 group-hover:scale-110 transition-transform" />
             <span className="font-medium text-blue-700">Generate NEC Report</span>
           </button>
-          <button className="flex items-center justify-center p-4 bg-green-50 hover:bg-green-100 rounded-lg transition-colors group">
+          <button 
+            onClick={() => setShowTeamMeetingModal(true)}
+            className="flex items-center justify-center p-4 bg-green-50 hover:bg-green-100 rounded-lg transition-colors group"
+          >
             <Users className="h-6 w-6 text-green-600 mr-2 group-hover:scale-110 transition-transform" />
             <span className="font-medium text-green-700">Schedule Team Meeting</span>
           </button>
-          <button className="flex items-center justify-center p-4 bg-purple-50 hover:bg-purple-100 rounded-lg transition-colors group">
+          <button 
+            onClick={() => setShowKPITargetsModal(true)}
+            className="flex items-center justify-center p-4 bg-purple-50 hover:bg-purple-100 rounded-lg transition-colors group"
+          >
             <Target className="h-6 w-6 text-purple-600 mr-2 group-hover:scale-110 transition-transform" />
             <span className="font-medium text-purple-700">Review KPI Targets</span>
           </button>
-          <button className="flex items-center justify-center p-4 bg-yellow-50 hover:bg-yellow-100 rounded-lg transition-colors group">
+          <button 
+            onClick={() => setShowIssuesRisksModal(true)}
+            className="flex items-center justify-center p-4 bg-yellow-50 hover:bg-yellow-100 rounded-lg transition-colors group"
+          >
             <AlertCircle className="h-6 w-6 text-yellow-600 mr-2 group-hover:scale-110 transition-transform" />
             <span className="font-medium text-yellow-700">View Issues & Risks</span>
           </button>
         </div>
       </div>
+
+      {/* All Modals */}
+      <NECReportModal 
+        isOpen={showNECReportModal} 
+        onClose={() => setShowNECReportModal(false)} 
+        onGenerate={handleGenerateNECReport}
+      />
+      <TeamMeetingModal 
+        isOpen={showTeamMeetingModal} 
+        onClose={() => setShowTeamMeetingModal(false)} 
+        onSchedule={handleScheduleTeamMeeting}
+      />
+      <KPITargetsModal 
+        isOpen={showKPITargetsModal} 
+        onClose={() => setShowKPITargetsModal(false)} 
+        onUpdate={handleUpdateKPITargets}
+        currentKPIs={kpiData}
+      />
+      <IssuesRisksModal 
+        isOpen={showIssuesRisksModal} 
+        onClose={() => setShowIssuesRisksModal(false)} 
+      />
+      <CheckInModal 
+        isOpen={showCheckInModal} 
+        onClose={() => setShowCheckInModal(false)} 
+        onSchedule={handleScheduleCheckIn}
+      />
+      <AddDeadlineModal 
+        isOpen={showAddDeadlineModal} 
+        onClose={() => setShowAddDeadlineModal(false)} 
+        onAdd={handleAddDeadline}
+      />
+      <CreateReportModal 
+        isOpen={showCreateReportModal} 
+        onClose={() => setShowCreateReportModal(false)} 
+        onCreate={handleCreateReport}
+      />
     </div>
   );
 };
