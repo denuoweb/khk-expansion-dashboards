@@ -15,10 +15,13 @@ DATABASE_URL = os.getenv("DATABASE_URL")
 if not DATABASE_URL:
     raise ValueError("DATABASE_URL not set")
 
-# Ensure Neon connections use SSL
-if "sslmode" not in DATABASE_URL:
+# Ensure Neon connections use SSL using the `ssl` parameter
+if "sslmode=require" in DATABASE_URL:
+    DATABASE_URL = DATABASE_URL.replace("sslmode=require", "ssl=require")
+
+if "ssl=" not in DATABASE_URL:
     suffix = "&" if "?" in DATABASE_URL else "?"
-    DATABASE_URL = f"{DATABASE_URL}{suffix}sslmode=require"
+    DATABASE_URL = f"{DATABASE_URL}{suffix}ssl=require"
 
 engine: AsyncEngine = create_async_engine(DATABASE_URL, echo=True)
 

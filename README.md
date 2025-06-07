@@ -19,9 +19,10 @@ frontend.  During development you normally run them separately.
 2. **Environment variables** – copy the provided example and fill in the
    database connection and secret:
    ```bash
-   cp .env.sample .env
-   # edit .env and set DATABASE_URL and SECRET_KEY
-   ```
+cp .env.sample .env
+# edit .env and set DATABASE_URL and SECRET_KEY
+```
+   Make sure the `DATABASE_URL` includes `ssl=require` when connecting to a database that requires SSL.
 3. **Configure the chair account** – add a password to `.env`:
    ```bash
    echo "CHAIR_PASSWORD=my-secret" >> .env
