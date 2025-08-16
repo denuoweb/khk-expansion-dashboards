@@ -91,15 +91,22 @@ application.  Authentication follows OAuth2 with bearer tokens.
 * `PUT /contacts/{id}` – update a contact
 * `DELETE /contacts/{id}` – remove a contact
 * `GET /health` – simple health check
+* `GET /calendar/calendars` – list available calendars
+* `GET /calendar/events` – list events for a calendar
+* `POST /calendar/events` – create a calendar event
+* `PUT /calendar/events/{id}` – update a calendar event
+* `DELETE /calendar/events/{id}` – remove a calendar event
+* `POST /calendar/events/{id}/meeting-link` – generate a meeting link
+* `GET /drive/files` – list files in Google Drive
+* `POST /drive/files` – upload a file to Google Drive
+* `DELETE /drive/files/{id}` – delete a Google Drive file
+* `POST /drive/files/{id}/share` – share a Google Drive file
+* `GET /drive/folders` – list root or nested folders
+* `POST /drive/folders` – create a Google Drive folder
+* `GET /drive/search` – search Google Drive files
 
 ### Future work
 
-The frontend contains stub services for Google Drive and Google Calendar
-integration. To fully support those features the API should implement
-endpoints for:
-
-* Authenticating with Google APIs (OAuth2) and storing access tokens
-* Listing calendars and events and creating/updating/deleting events
-* Managing Drive folders and files (upload, share, search and delete)
-
-These additions will bring the backend in line with the frontend logic.
+The Google Drive and Calendar routes provide mock functionality. Full support
+would require integrating with Google's OAuth2 flow and persisting access
+tokens as well as proxying requests to the real APIs.

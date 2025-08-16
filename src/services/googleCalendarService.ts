@@ -42,8 +42,22 @@ interface Calendar {
 }
 
 class GoogleCalendarService {
+  private baseUrl: string = import.meta.env.VITE_API_URL ?? 'http://localhost:8000';
   private isInitialized = false;
   private accessToken: string | null = null;
+  private authToken: string | null = null;
+
+  setAuthToken(token: string | null) {
+    this.authToken = token;
+  }
+
+  private buildHeaders(extra: Record<string, string> = {}): Record<string, string> {
+    const headers: Record<string, string> = { ...extra };
+    if (this.authToken) {
+      headers['Authorization'] = `Bearer ${this.authToken}`;
+    }
+    return headers;
+  }
 
   async initialize(): Promise<boolean> {
     try {
@@ -58,153 +72,88 @@ class GoogleCalendarService {
   }
 
   async getCalendars(): Promise<Calendar[]> {
-    await new Promise(resolve => setTimeout(resolve, 300));
-    
-    return [
-      {
-        id: 'primary',
-        summary: 'KHK Expansion Calendar',
-        description: 'Main calendar for expansion activities',
-        primary: true,
-        accessRole: 'owner'
-      },
-      {
-        id: 'meetings',
-        summary: 'Officer Meetings',
-        description: 'Executive and committee meetings',
-        accessRole: 'writer'
-      },
-      {
-        id: 'deadlines',
-        summary: 'Project Deadlines',
-        description: 'Important deadlines and milestones',
-        accessRole: 'writer'
-      }
-    ];
+    const res = await fetch(`${this.baseUrl}/calendar/calendars`, {
+      headers: this.buildHeaders(),
+    });
+    if (!res.ok) {
+      throw new Error('Failed to fetch calendars');
+    }
+    return res.json();
   }
 
-  async getEvents(calendarId: string = 'primary', timeMin?: string, timeMax?: string): Promise<CalendarEvent[]> {
-    void calendarId;
-    void timeMin;
-    void timeMax;
-    await new Promise(resolve => setTimeout(resolve, 400));
-    
-    return [
-      {
-        id: 'event_1',
-        summary: 'Executive Committee Meeting',
-        description: 'Weekly leadership meeting to review expansion progress',
-        start: {
-          dateTime: '2024-01-15T14:00:00-05:00',
-          timeZone: 'America/New_York'
-        },
-        end: {
-          dateTime: '2024-01-15T15:30:00-05:00',
-          timeZone: 'America/New_York'
-        },
-        attendees: [
-          { email: 'chair@khk.org', displayName: 'Chair', responseStatus: 'accepted' },
-          { email: 'vicechair@khk.org', displayName: 'Vice Chair', responseStatus: 'accepted' },
-          { email: 'secretary@khk.org', displayName: 'Secretary', responseStatus: 'needsAction' }
-        ],
-        location: 'Conference Room A',
-        conferenceData: {
-          createRequest: {
-            requestId: 'meet_123',
-            conferenceSolutionKey: { type: 'hangoutsMeet' }
-          }
-        }
-      },
-      {
-        id: 'event_2',
-        summary: 'University of Michigan Campus Visit',
-        description: 'Site visit to assess expansion opportunities',
-        start: {
-          dateTime: '2024-01-18T10:00:00-05:00',
-          timeZone: 'America/Detroit'
-        },
-        end: {
-          dateTime: '2024-01-18T16:00:00-05:00',
-          timeZone: 'America/Detroit'
-        },
-        attendees: [
-          { email: 'recruitment@khk.org', displayName: 'Recruitment Officer', responseStatus: 'accepted' },
-          { email: 'chapterdev@khk.org', displayName: 'Chapter Development', responseStatus: 'accepted' }
-        ],
-        location: 'University of Michigan, Ann Arbor, MI'
-      },
-      {
-        id: 'event_3',
-        summary: 'NEC Quarterly Report Due',
-        description: 'Submit quarterly progress report to National Executive Committee',
-        start: {
-          dateTime: '2024-01-25T23:59:00-05:00',
-          timeZone: 'America/New_York'
-        },
-        end: {
-          dateTime: '2024-01-25T23:59:00-05:00',
-          timeZone: 'America/New_York'
-        },
-        reminders: {
-          useDefault: false,
-          overrides: [
-            { method: 'email', minutes: 1440 }, // 1 day
-            { method: 'popup', minutes: 60 }    // 1 hour
-          ]
-        }
-      }
-    ];
+  async getEvents(
+    calendarId = 'primary',
+    _timeMin?: string,
+    _timeMax?: string,
+  ): Promise<CalendarEvent[]> {
+    void _timeMin;
+    void _timeMax;
+    const url = new URL(`${this.baseUrl}/calendar/events`);
+    url.searchParams.set('calendar_id', calendarId);
+    const res = await fetch(url.toString(), {
+      headers: this.buildHeaders(),
+    });
+    if (!res.ok) {
+      throw new Error('Failed to fetch events');
+    }
+    return res.json();
   }
 
   async createEvent(calendarId: string, event: Partial<CalendarEvent>): Promise<CalendarEvent> {
-    void calendarId;
-    await new Promise(resolve => setTimeout(resolve, 600));
-    
-    const newEvent: CalendarEvent = {
-      id: `event_${Date.now()}`,
-      summary: event.summary || 'New Event',
-      description: event.description,
-      start: event.start || {
-        dateTime: new Date().toISOString(),
-        timeZone: 'America/New_York'
-      },
-      end: event.end || {
-        dateTime: new Date(Date.now() + 3600000).toISOString(),
-        timeZone: 'America/New_York'
-      },
-      attendees: event.attendees || [],
-      location: event.location,
-      conferenceData: event.conferenceData,
-      reminders: event.reminders
-    };
-
-    return newEvent;
+    const url = new URL(`${this.baseUrl}/calendar/events`);
+    url.searchParams.set('calendar_id', calendarId);
+    const res = await fetch(url.toString(), {
+      method: 'POST',
+      headers: this.buildHeaders({ 'Content-Type': 'application/json' }),
+      body: JSON.stringify(event),
+    });
+    if (!res.ok) {
+      throw new Error('Failed to create event');
+    }
+    return res.json();
   }
 
-  async updateEvent(calendarId: string, eventId: string, updates: Partial<CalendarEvent>): Promise<CalendarEvent> {
-    await new Promise(resolve => setTimeout(resolve, 500));
-    
-    // In a real implementation, this would update the actual event
-    const events = await this.getEvents(calendarId);
-    const existingEvent = events.find(e => e.id === eventId);
-    
-    if (!existingEvent) {
-      throw new Error('Event not found');
+  async updateEvent(
+    calendarId: string,
+    eventId: string,
+    updates: Partial<CalendarEvent>,
+  ): Promise<CalendarEvent> {
+    const url = new URL(`${this.baseUrl}/calendar/events/${eventId}`);
+    url.searchParams.set('calendar_id', calendarId);
+    const res = await fetch(url.toString(), {
+      method: 'PUT',
+      headers: this.buildHeaders({ 'Content-Type': 'application/json' }),
+      body: JSON.stringify(updates),
+    });
+    if (!res.ok) {
+      throw new Error('Failed to update event');
     }
-
-    return { ...existingEvent, ...updates };
+    return res.json();
   }
 
   async deleteEvent(calendarId: string, eventId: string): Promise<boolean> {
-    void calendarId;
-    void eventId;
-    await new Promise(resolve => setTimeout(resolve, 300));
-    return true;
+    const url = new URL(`${this.baseUrl}/calendar/events/${eventId}`);
+    url.searchParams.set('calendar_id', calendarId);
+    const res = await fetch(url.toString(), {
+      method: 'DELETE',
+      headers: this.buildHeaders(),
+    });
+    return res.ok;
   }
 
   async createMeetingLink(eventId: string): Promise<string> {
-    await new Promise(resolve => setTimeout(resolve, 400));
-    return `https://meet.google.com/demo-meeting-${eventId}`;
+    const res = await fetch(
+      `${this.baseUrl}/calendar/events/${eventId}/meeting-link`,
+      {
+        method: 'POST',
+        headers: this.buildHeaders(),
+      },
+    );
+    if (!res.ok) {
+      throw new Error('Failed to create meeting link');
+    }
+    const data: { link: string } = await res.json();
+    return data.link;
   }
 
   formatEventDateTime(dateTime: string, timeZone: string): string {
@@ -214,7 +163,7 @@ class GoogleCalendarService {
       month: 'short',
       day: 'numeric',
       hour: 'numeric',
-      minute: '2-digit'
+      minute: '2-digit',
     });
   }
 
@@ -225,3 +174,4 @@ class GoogleCalendarService {
 
 export const googleCalendarService = new GoogleCalendarService();
 export type { CalendarEvent, Calendar };
+

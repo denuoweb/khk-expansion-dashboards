@@ -2,7 +2,14 @@ from fastapi import FastAPI, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from .db import AsyncSessionLocal
-from .routers import tasks, auth, users, contacts
+from .routers import (
+    tasks,
+    auth,
+    users,
+    contacts,
+    google_drive,
+    google_calendar,
+)
 from .startup import init_db_and_chair
 
 app = FastAPI(title="KHK Expansion API")
@@ -23,6 +30,8 @@ app.include_router(auth.router)
 app.include_router(users.router)
 app.include_router(tasks.router)
 app.include_router(contacts.router)
+app.include_router(google_drive.router)
+app.include_router(google_calendar.router)
 
 
 @app.get("/health")
