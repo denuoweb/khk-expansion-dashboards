@@ -16,11 +16,26 @@ interface GoogleDriveFolder {
   name: string;
   files: GoogleDriveFile[];
   subfolders: GoogleDriveFolder[];
+  parentId?: string;
 }
 
 class GoogleDriveService {
+  private baseUrl: string = import.meta.env.VITE_API_URL ?? 'http://localhost:8000';
   private isInitialized = false;
   private accessToken: string | null = null;
+  private authToken: string | null = null;
+
+  setAuthToken(token: string | null) {
+    this.authToken = token;
+  }
+
+  private buildHeaders(extra: Record<string, string> = {}): Record<string, string> {
+    const headers: Record<string, string> = { ...extra };
+    if (this.authToken) {
+      headers['Authorization'] = `Bearer ${this.authToken}`;
+    }
+    return headers;
+  }
 
   async initialize(): Promise<boolean> {
     try {
@@ -35,103 +50,95 @@ class GoogleDriveService {
     }
   }
 
-  async createFolder(name: string, _parentId?: string): Promise<GoogleDriveFolder> {
-    void _parentId;
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 500));
-    
-    return {
-      id: `folder_${Date.now()}`,
-      name,
-      files: [],
-      subfolders: []
-    };
+  async createFolder(name: string, parentId?: string): Promise<GoogleDriveFolder> {
+    const res = await fetch(`${this.baseUrl}/drive/folders`, {
+      method: 'POST',
+      headers: this.buildHeaders({ 'Content-Type': 'application/json' }),
+      body: JSON.stringify({ name, parentId }),
+    });
+    if (!res.ok) {
+      throw new Error('Failed to create folder');
+    }
+    return res.json();
   }
 
   async uploadFile(file: File, folderId?: string): Promise<GoogleDriveFile> {
-    // Simulate file upload
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    return {
-      id: `file_${Date.now()}`,
-      name: file.name,
-      mimeType: file.type,
-      size: file.size.toString(),
-      modifiedTime: new Date().toISOString(),
-      webViewLink: `https://drive.google.com/file/d/demo_${Date.now()}/view`,
-      webContentLink: `https://drive.google.com/uc?id=demo_${Date.now()}`,
-      parents: folderId ? [folderId] : [],
-      shared: false,
-      permissions: []
-    };
+    const formData = new FormData();
+    formData.append('file', file);
+    if (folderId) {
+      formData.append('folder_id', folderId);
+    }
+
+    const res = await fetch(`${this.baseUrl}/drive/files`, {
+      method: 'POST',
+      headers: this.buildHeaders(),
+      body: formData,
+    });
+    if (!res.ok) {
+      throw new Error('Failed to upload file');
+    }
+    return res.json();
   }
 
-  async getFiles(_folderId?: string): Promise<GoogleDriveFile[]> {
-    void _folderId;
-    // Simulate getting files
-    await new Promise(resolve => setTimeout(resolve, 300));
-    
-    return [
-      {
-        id: 'file_1',
-        name: 'University Contact Database.xlsx',
-        mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-        size: '45632',
-        modifiedTime: '2024-01-08T10:30:00Z',
-        webViewLink: 'https://drive.google.com/file/d/demo_1/view',
-        webContentLink: 'https://drive.google.com/uc?id=demo_1',
-        parents: ['recruitment_folder'],
-        shared: true,
-        permissions: []
-      },
-      {
-        id: 'file_2',
-        name: 'Q1 Marketing Templates.zip',
-        mimeType: 'application/zip',
-        size: '2048576',
-        modifiedTime: '2024-01-07T14:15:00Z',
-        webViewLink: 'https://drive.google.com/file/d/demo_2/view',
-        webContentLink: 'https://drive.google.com/uc?id=demo_2',
-        parents: ['marketing_folder'],
-        shared: true,
-        permissions: []
-      },
-      {
-        id: 'file_3',
-        name: 'Risk Assessment Template.docx',
-        mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-        size: '87432',
-        modifiedTime: '2024-01-06T09:45:00Z',
-        webViewLink: 'https://drive.google.com/file/d/demo_3/view',
-        webContentLink: 'https://drive.google.com/uc?id=demo_3',
-        parents: ['compliance_folder'],
-        shared: false,
-        permissions: []
-      }
-    ];
+  async getFiles(folderId?: string): Promise<GoogleDriveFile[]> {
+    const url = new URL(`${this.baseUrl}/drive/files`);
+    if (folderId) {
+      url.searchParams.set('folder_id', folderId);
+    }
+    const res = await fetch(url.toString(), {
+      headers: this.buildHeaders(),
+    });
+    if (!res.ok) {
+      throw new Error('Failed to fetch files');
+    }
+    return res.json();
   }
 
-  async shareFile(_fileId: string, _email: string, _role: 'reader' | 'writer' | 'commenter' = 'reader'): Promise<boolean> {
-    void _fileId;
-    void _email;
-    void _role;
-    // Simulate sharing
-    await new Promise(resolve => setTimeout(resolve, 500));
-    return true;
+  async getFolders(parentId?: string): Promise<GoogleDriveFolder[]> {
+    const url = new URL(`${this.baseUrl}/drive/folders`);
+    if (parentId) {
+      url.searchParams.set('parent_id', parentId);
+    }
+    const res = await fetch(url.toString(), {
+      headers: this.buildHeaders(),
+    });
+    if (!res.ok) {
+      throw new Error('Failed to fetch folders');
+    }
+    return res.json();
   }
 
-  async deleteFile(_fileId: string): Promise<boolean> {
-    void _fileId;
-    // Simulate deletion
-    await new Promise(resolve => setTimeout(resolve, 300));
-    return true;
+  async shareFile(
+    fileId: string,
+    email: string,
+    role: 'reader' | 'writer' | 'commenter' = 'reader',
+  ): Promise<boolean> {
+    const res = await fetch(`${this.baseUrl}/drive/files/${fileId}/share`, {
+      method: 'POST',
+      headers: this.buildHeaders({ 'Content-Type': 'application/json' }),
+      body: JSON.stringify({ email, role }),
+    });
+    return res.ok;
+  }
+
+  async deleteFile(fileId: string): Promise<boolean> {
+    const res = await fetch(`${this.baseUrl}/drive/files/${fileId}`, {
+      method: 'DELETE',
+      headers: this.buildHeaders(),
+    });
+    return res.ok;
   }
 
   async searchFiles(query: string): Promise<GoogleDriveFile[]> {
-    const allFiles = await this.getFiles();
-    return allFiles.filter(file => 
-      file.name.toLowerCase().includes(query.toLowerCase())
-    );
+    const url = new URL(`${this.baseUrl}/drive/search`);
+    url.searchParams.set('q', query);
+    const res = await fetch(url.toString(), {
+      headers: this.buildHeaders(),
+    });
+    if (!res.ok) {
+      throw new Error('Failed to search files');
+    }
+    return res.json();
   }
 
   getFilePreviewUrl(fileId: string): string {
@@ -145,3 +152,4 @@ class GoogleDriveService {
 
 export const googleDriveService = new GoogleDriveService();
 export type { GoogleDriveFile, GoogleDriveFolder };
+
